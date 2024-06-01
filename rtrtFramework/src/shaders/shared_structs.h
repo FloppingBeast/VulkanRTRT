@@ -101,6 +101,7 @@ struct PushConstantRay
     // ALIGNAS(16) vec4 tempLightInt;
     // ALIGNAS(16) vec4 tempAmbient;
     ALIGNAS(4) bool clear;  // Tell the ray generation shader to start accumulation from scratch
+    ALIGNAS(4) float exposure;
     // @@ Set alignmentTest to a known value in C++;  Test for that value in the shader!
     ALIGNAS(4) int alignmentTest;
 };
