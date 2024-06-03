@@ -36,7 +36,7 @@ void VkApp::destroyAllVulkanResources()
 
     // Destroy all vulkan objects.
     // ...  All objects created on m_device must be destroyed before m_device.
-    //vkDestroyDevice(m_device, nullptr);
+    vkDestroyDevice(m_device, nullptr);
     vkDestroyInstance(m_instance, nullptr);
 }
 
@@ -284,7 +284,11 @@ void VkApp::chooseQueueIndex()
   // Nothing to destroy as m_graphicsQueueIndex is just an integer.
 }
 
-
+/*********************************************************************
+ *
+ * 
+ * brief:  Set up logical device to interface with physical device
+ **********************************************************************/
 void VkApp::createDevice()
 {
     // @@
@@ -299,19 +303,19 @@ void VkApp::createDevice()
         VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR};
     
     VkPhysicalDeviceAccelerationStructureFeaturesKHR accelFeature{
-        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR};
+        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR, &rtPipelineFeature};
     
     VkPhysicalDeviceVulkan13Features features13{
-        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES};
+        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES, &accelFeature};
     
     VkPhysicalDeviceVulkan12Features features12{
-        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES};
+        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES, &features13};
     
     VkPhysicalDeviceVulkan11Features features11{
-        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES};
+        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES, &features12};
     
     VkPhysicalDeviceFeatures2 features2{
-        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2};
+        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2, &features11};
     // Let Vulkan fill in all structures on the pNext chain
     vkGetPhysicalDeviceFeatures2(m_physicalDevice, &features2);
     // @@ If you are curious, document the whole filled in pNext chain
@@ -332,11 +336,16 @@ void VkApp::createDevice()
     deviceCreateInfo.enabledExtensionCount   = static_cast<uint32_t>(reqDeviceExtensions.size());
     deviceCreateInfo.ppEnabledExtensionNames = reqDeviceExtensions.data();
 
-    vkCreateDevice(m_physicalDevice, &deviceCreateInfo, nullptr, &m_device);
+    VkResult result = vkCreateDevice(m_physicalDevice, &deviceCreateInfo, nullptr, &m_device);
     
     // @@
     // Verify VK_SUCCESS
     // To destroy: vkDestroyDevice(m_device, nullptr);
+
+    if (result != VK_SUCCESS)
+    {
+      throw std::runtime_error("failed to create logical device!");
+    }
 }
 
 void VkApp::getCommandQueue()
