@@ -42,7 +42,7 @@ VkApp::VkApp(App* _app) : app(_app)
     getSurface();			        // -> m_surface
     createCommandPool();		  // -> m_cmdPool
     
-    // createSwapchain();		// -> m_swapchain
+    createSwapchain();		// -> m_swapchain
     // createDepthResource();		// -> m_depthImage, ...
     // createPostRenderPass();		// -> m_postRenderPass
     // createPostFrameBuffers();	// -> m_framebuffers

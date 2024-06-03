@@ -36,6 +36,7 @@ void VkApp::destroyAllVulkanResources()
 
     // Destroy all vulkan objects.
     // ...  All objects created on m_device must be destroyed before m_device.
+    destroySwapchain();
     vkDestroyCommandPool(m_device, m_cmdPool, nullptr);
     vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
     vkDestroyDevice(m_device, nullptr);
@@ -441,7 +442,11 @@ void VkApp::createCommandPool()
     }
 }
  
-// 
+/*********************************************************************
+ *
+ * 
+ * brief:  
+ **********************************************************************/
 void VkApp::createSwapchain()
 {
     VkResult       err;
@@ -458,11 +463,21 @@ void VkApp::createSwapchain()
     //  by making two calls to
     //    vkGetPhysicalDeviceSurfacePresentModesKHR(m_physicalDevice, m_surface, ...);
     // For an example, search above for vkGetPhysicalDeviceQueueFamilyProperties
+    // Retrieve the list of queue families. (2-step.)
+    uint32_t presentModeCount;
+    vkGetPhysicalDeviceSurfacePresentModesKHR(m_physicalDevice, m_surface, &presentModeCount, nullptr);
+    std::vector<VkPresentModeKHR> presentModes(presentModeCount);
+    vkGetPhysicalDeviceSurfacePresentModesKHR(m_physicalDevice, m_surface, &presentModeCount, presentModes.data());
     
     // @@ Document your preset modes. I especially want to know if
     // your system offers VK_PRESENT_MODE_MAILBOX_KHR mode.  My
     // high-end windows desktop does; My higher-end Linux laptop
     // doesn't.
+    printf("Present Mode Count: %i\n", presentModeCount);
+    for (const VkPresentModeKHR& mode : presentModes)
+    {
+      printf("%i\n", mode);
+    }
 
     // Choose VK_PRESENT_MODE_FIFO_KHR as a default (this must be supported)
     VkPresentModeKHR swapchainPresentMode = VK_PRESENT_MODE_FIFO_KHR; // Support is required.
@@ -477,19 +492,39 @@ void VkApp::createSwapchain()
     //   std::vector<VkSurfaceFormatKHR> formats;
     // with two calls to
     //   vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevice, m_surface, ...);
+
+    uint32_t formatCount;
+    vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevice, m_surface, &formatCount, nullptr);
+    std::vector<VkSurfaceFormatKHR> formats(formatCount);
+    vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevice, m_surface, &formatCount, formats.data());
+
     // @@ Document the list you get.
 
-    VkFormat surfaceFormat       = VK_FORMAT_UNDEFINED;               // Temporary value.
-    VkColorSpaceKHR surfaceColor = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR; // Temporary value
+    printf("Format Count: %i\n", formatCount);
+    for (const VkSurfaceFormatKHR& format : formats)
+    {
+      printf("%i, %i\n", format.format, format.colorSpace);
+    }
+
     // @@ Replace the above two temporary lines with the following two
     // to choose the first format and its color space as defaults:
-    //  VkFormat surfaceFormat = formats[0].format;
-    //  VkColorSpaceKHR surfaceColor  = formats[0].colorSpace;
+    VkFormat surfaceFormat = formats[0].format;
+    VkColorSpaceKHR surfaceColor  = formats[0].colorSpace;
 
     // @@ Then search the formats (from several lines up) to choose
     // format VK_FORMAT_B8G8R8A8_UNORM (and its color space) if such
     // exists.  Document your list of formats/color-spaces, and your
     // particular choice.
+    for (const VkSurfaceFormatKHR& format : formats)
+    {
+      if (format.format == VK_FORMAT_B8G8R8A8_UNORM)
+      {
+        surfaceFormat = format.format;
+        surfaceColor = format.colorSpace;
+
+        break;
+      }
+    }
     
     // Get the swap chain extent
     VkExtent2D swapchainExtent = capabilities.currentExtent;
@@ -521,7 +556,7 @@ void VkApp::createSwapchain()
         && imageCount > capabilities.maxImageCount) {
             imageCount = capabilities.maxImageCount; }
     
-    assert (imageCount == 3);
+    // assert (imageCount == 3); // image count is 2
     // If this triggers, disable the assert, BUT help me understand
     // the situation that caused it.  
 
@@ -547,8 +582,12 @@ void VkApp::createSwapchain()
     _i.oldSwapchain             = oldSwapchain;
     _i.clipped                  = true;
 
-    vkCreateSwapchainKHR(m_device, &_i, nullptr, &m_swapchain);
+    VkResult result = vkCreateSwapchainKHR(m_device, &_i, nullptr, &m_swapchain);
     // @@ Verify VK_SUCCESS
+    if (result != VK_SUCCESS)
+    {
+      throw std::runtime_error("failed to create swapchain!");
+    }
     
     //@@ Do the two step process to retrieve the list of (3) swapchain images
     //   m_swapchainImages (of type std::vector<VkImage>)
@@ -556,6 +595,16 @@ void VkApp::createSwapchain()
     //   vkGetSwapchainImagesKHR(m_device, m_swapchain, ...);
     // Verify success
     // Verify and document that you retrieved the correct number of images.
+    uint32_t swapchainImageCount;
+    vkGetSwapchainImagesKHR(m_device, m_swapchain, &swapchainImageCount, nullptr);
+    std::vector<VkImage> swapchainImages(swapchainImageCount);
+    result = vkGetSwapchainImagesKHR(m_device, m_swapchain, &swapchainImageCount, swapchainImages.data());
+
+    if (result != VK_SUCCESS)
+    {
+      throw std::runtime_error("failed to get swapchain images!");
+    }
+    printf("Swapchain Image Count: %i\n", swapchainImageCount);
     
     m_barriers.resize(m_imageCount);
     m_imageViews.resize(m_imageCount);
@@ -632,13 +681,18 @@ void VkApp::destroySwapchain()
 
     // @@
     // Destroy all (3)  m_imageViews with vkDestroyImageView(m_device, imageView, nullptr)
+    for (VkImageView& imageView : m_imageViews)
+    {
+      vkDestroyImageView(m_device, imageView, nullptr);
+    }
 
     // Destroy the synchronization items: 
-    //  vkDestroyFence(m_device, m_waitFence, nullptr);
-    //  vkDestroySemaphore(m_device, m_readSemaphore, nullptr);
-    //  vkDestroySemaphore(m_device, m_writtenSemaphore, nullptr);
+    vkDestroyFence(m_device, m_waitFence, nullptr);
+    vkDestroySemaphore(m_device, m_readSemaphore, nullptr);
+    vkDestroySemaphore(m_device, m_writtenSemaphore, nullptr);
 
     // Destroy the actual swapchain with: vkDestroySwapchainKHR(m_device, m_swapchain, nullptr);
+    vkDestroySwapchainKHR(m_device, m_swapchain, nullptr);
 
     m_swapchain = VK_NULL_HANDLE;
     m_imageViews.clear();
