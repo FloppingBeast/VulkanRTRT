@@ -1,3 +1,11 @@
+/*********************************************************************
+ * file:   vkapp.cpp
+ * author: lawrence.winters (lawrence.winters@digipen.edu)
+ * date:   June 1, 2024
+ * Copyright © 2023 DigiPen (USA) Corporation. 
+ * 
+ * brief:  Class Declaration of VkApp
+ *********************************************************************/
 
 #include <array>
 #include <iostream>     // std::cout
@@ -22,8 +30,8 @@
 
 VkApp::VkApp(App* _app) : app(_app)
 {
-    // createInstance(app->doApiDump);	// -> m_instance
-    // assert (m_instance);
+    createInstance(app->doApiDump);	// -> m_instance
+    assert (m_instance);
     // createPhysicalDevice();		// -> m_physicalDevice i.e. the GPU
     // chooseQueueIndex();		// -> m_graphicsQueueIndex
     // createDevice();			// -> m_device

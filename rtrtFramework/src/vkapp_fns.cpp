@@ -1,4 +1,11 @@
-
+/*********************************************************************
+ * file:   vkapp_fns.cpp
+ * author: lawrence.winters (lawrence.winters@digipen.edu)
+ * date:   June 1, 2024
+ * Copyright © 2023 DigiPen (USA) Corporation. 
+ * 
+ * brief:  Holds all of the functions related to the vulkan function calls
+ *********************************************************************/
 
 #include <array>
 #include <iostream>     // std::cout
@@ -17,7 +24,11 @@
 #include "backends/imgui_impl_vulkan.h"
 #endif
 
-
+/*********************************************************************
+ *
+ * 
+ * brief:  All of resources created using vk func calls destroyed here
+ **********************************************************************/
 void VkApp::destroyAllVulkanResources()
 {
     // @@
@@ -26,16 +37,27 @@ void VkApp::destroyAllVulkanResources()
     // Destroy all vulkan objects.
     // ...  All objects created on m_device must be destroyed before m_device.
     //vkDestroyDevice(m_device, nullptr);
-    //vkDestroyInstance(m_instance, nullptr);
+    vkDestroyInstance(m_instance, nullptr);
 }
 
+/*********************************************************************
+ * param:  size
+ *
+ * 
+ * brief:  
+ **********************************************************************/
 void VkApp::recreateSizedResources(VkExtent2D size)
 {
     assert(false && "Not ready for onResize events.");
     // Destroy everything related to the window size
     // (RE)Create them all at the new size
 }
- 
+ /*********************************************************************
+  * param:  doApiDump, Lunar dump with tons of information (true if wanted)
+  *
+  * 
+  * brief:  Initialize vulkan library by creating an instance
+  **********************************************************************/
 void VkApp::createInstance(bool doApiDump)
 {
     uint32_t countGLFWextensions{0};
@@ -45,11 +67,16 @@ void VkApp::createInstance(bool doApiDump)
     // Append each GLFW required extension in reqGLFWextensions to reqInstanceExtensions
     // Print them out while your are at it
     printf("GLFW required extensions:\n");
-    // ...
+    for (int i = 0; i < countGLFWextensions; ++i)
+    {
+      reqInstanceExtensions.push_back(reqGLFWextensions[i]);
+
+      printf("%s\n", reqGLFWextensions[i]);
+    }
 
     // Suggestion: Parse a command line argument to set/unset doApiDump
     // If included, the api_dump layer should be first on reqInstanceLayers
-    if (doApiDump)
+    if (true)
         reqInstanceLayers.insert(reqInstanceLayers.begin(), "VK_LAYER_LUNARG_api_dump");
   
     uint32_t count;
@@ -62,6 +89,10 @@ void VkApp::createInstance(bool doApiDump)
     // Print out the availableLayers
     printf("InstanceLayer count: %d\n", count);
     // ...  use availableLayers[i].layerName
+    for (const VkLayerProperties& layers : availableLayers)
+    {
+      printf("%s\n", layers.layerName);
+    }
 
     // Another two step dance
     vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
@@ -72,6 +103,10 @@ void VkApp::createInstance(bool doApiDump)
     // Print out the availableExtensions
     printf("InstanceExtensions count: %d\n", count);
     // ...  use availableExtensions[i].extensionName
+    for (const VkExtensionProperties& extension : availableExtensions)
+    {
+      printf("%s\n", extension.extensionName);
+    }
 
     VkApplicationInfo applicationInfo{VK_STRUCTURE_TYPE_APPLICATION_INFO};
     applicationInfo.pApplicationName = "rtrt";
@@ -88,12 +123,16 @@ void VkApp::createInstance(bool doApiDump)
     instanceCreateInfo.enabledLayerCount       = reqInstanceLayers.size();
     instanceCreateInfo.ppEnabledLayerNames     = reqInstanceLayers.data();
 
-    vkCreateInstance(&instanceCreateInfo, nullptr, &m_instance);
+    auto result = vkCreateInstance(&instanceCreateInfo, nullptr, &m_instance);
 
     // @@
     // Verify VkResult is VK_SUCCESS
     // Document with a cut-and-paste of the three list printouts above.
     // To destroy: vkDestroyInstance(m_instance, nullptr);
+    if (result != VK_SUCCESS)
+    {
+      throw std::runtime_error("failed to create instance!");
+    }
 }
 
 void VkApp::createPhysicalDevice()
