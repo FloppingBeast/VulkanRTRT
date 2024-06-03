@@ -39,8 +39,8 @@ VkApp::VkApp(App* _app) : app(_app)
 
     loadExtensions();		      // Auto generated; loads namespace of all known extensions
 
-    getSurface();			// -> m_surface
-    // createCommandPool();		// -> m_cmdPool
+    getSurface();			        // -> m_surface
+    createCommandPool();		  // -> m_cmdPool
     
     // createSwapchain();		// -> m_swapchain
     // createDepthResource();		// -> m_depthImage, ...

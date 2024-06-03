@@ -36,6 +36,7 @@ void VkApp::destroyAllVulkanResources()
 
     // Destroy all vulkan objects.
     // ...  All objects created on m_device must be destroyed before m_device.
+    vkDestroyCommandPool(m_device, m_cmdPool, nullptr);
     vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
     vkDestroyDevice(m_device, nullptr);
     vkDestroyInstance(m_instance, nullptr);
@@ -419,15 +420,25 @@ void VkApp::createCommandPool()
     VkResult result = vkCreateCommandPool(m_device, &poolCreateInfo, nullptr, &m_cmdPool);
     // @@ Verify VK_SUCCESS
     // To destroy: vkDestroyCommandPool(m_device, m_cmdPool, nullptr);
+
+    if (result != VK_SUCCESS)
+    {
+      throw std::runtime_error("failed to create command pool!");
+    }
     
     // Create a command buffer
     VkCommandBufferAllocateInfo allocateInfo{VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO};
     allocateInfo.commandPool        = m_cmdPool;
     allocateInfo.commandBufferCount = 1;
     allocateInfo.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    vkAllocateCommandBuffers(m_device, &allocateInfo, &m_commandBuffer);
+    result = vkAllocateCommandBuffers(m_device, &allocateInfo, &m_commandBuffer);
     // @@ Verify VK_SUCCESS
     // Nothing to destroy -- the pool owns the command buffer.
+
+    if (result != VK_SUCCESS)
+    {
+      throw std::runtime_error("failed to allocate command buffers!");
+    }
 }
  
 // 
