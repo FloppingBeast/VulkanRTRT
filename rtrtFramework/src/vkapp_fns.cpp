@@ -76,7 +76,7 @@ void VkApp::createInstance(bool doApiDump)
 
     // Suggestion: Parse a command line argument to set/unset doApiDump
     // If included, the api_dump layer should be first on reqInstanceLayers
-    if (true)
+    if (doApiDump)
         reqInstanceLayers.insert(reqInstanceLayers.begin(), "VK_LAYER_LUNARG_api_dump");
   
     uint32_t count;
@@ -135,6 +135,11 @@ void VkApp::createInstance(bool doApiDump)
     }
 }
 
+/*********************************************************************
+ *
+ * 
+ * brief:  Look for a select a graphics card in the system
+ **********************************************************************/
 void VkApp::createPhysicalDevice()
 {
     // Get the GPU list;  Another two-step list retrieval procedure:
@@ -183,6 +188,45 @@ void VkApp::createPhysicalDevice()
         //  If none are found, declare failure and abort
         //     (And then find a better GPU for this class.)
         //  If several are found, tell me all about your system
+
+        // Discrete GPU compatibility
+        bool discrete = (GPUproperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU);
+
+        // All reqDeviceExtensions are found
+        bool extensions = true;
+        for (const char* reqExtenstions : reqDeviceExtensions)
+        {
+          bool result = false;
+          for (const VkExtensionProperties& properties : extensionProperties)
+          {
+            if (strcmp(reqExtenstions, properties.extensionName) == 0)
+            {
+              result = true;
+              break;
+            }
+          }
+
+          if (!result)
+          {
+            extensions = false;
+            break;
+          }
+        }
+
+        // GPU was compatible
+        if (discrete && extensions)
+        {
+          printf("GPU Accepted\n");
+          printf("%s\n", GPUproperties.deviceName);
+          m_physicalDevice = physicalDevice;
+        }
+        // GPU was not compatible
+        else
+        {
+          printf("GPU Rejected\n");
+          printf("%s\n", GPUproperties.deviceName);
+        }
+
 
         // Hint: Instead of a double nested pair of loops consider
         // making an std::unordered_set of all the device's
