@@ -34,12 +34,12 @@ VkApp::VkApp(App* _app) : app(_app)
     assert (m_instance);
     createPhysicalDevice();		// -> m_physicalDevice i.e. the GPU
     chooseQueueIndex();		    // -> m_graphicsQueueIndex
-    createDevice();			// -> m_device
-    // getCommandQueue();		// -> m_queue
+    createDevice();			      // -> m_device
+    getCommandQueue();		    // -> m_queue
 
-    // loadExtensions();		// Auto generated; loads namespace of all known extensions
+    loadExtensions();		      // Auto generated; loads namespace of all known extensions
 
-    // getSurface();			// -> m_surface
+    getSurface();			// -> m_surface
     // createCommandPool();		// -> m_cmdPool
     
     // createSwapchain();		// -> m_swapchain

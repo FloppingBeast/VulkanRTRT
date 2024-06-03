@@ -32,10 +32,10 @@ VK_EXT_debug_utils
 VK_EXT_swapchain_colorspace
 
 2 devices
-GPU Rejected
-AMD Radeon(TM) Graphics
-GPU Accepted
-AMD Radeon RX 6700S
+GPU Rejected:
+	AMD Radeon(TM) Graphics
+GPU Accepted:
+	AMD Radeon RX 6700S
 
 QueueFamily count: 3
 Queue Index: 0, VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT

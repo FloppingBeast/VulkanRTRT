@@ -32,10 +32,11 @@
 void VkApp::destroyAllVulkanResources()
 {
     // @@
-    // vkDeviceWaitIdle(m_device);  // Uncomment this when you have an m_device created.
+    vkDeviceWaitIdle(m_device);  // Uncomment this when you have an m_device created.
 
     // Destroy all vulkan objects.
     // ...  All objects created on m_device must be destroyed before m_device.
+    vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
     vkDestroyDevice(m_device, nullptr);
     vkDestroyInstance(m_instance, nullptr);
 }
@@ -348,6 +349,11 @@ void VkApp::createDevice()
     }
 }
 
+/*********************************************************************
+ *
+ * 
+ * brief:  Retrieve queue handles for each queue family
+ **********************************************************************/
 void VkApp::getCommandQueue()
 {
     vkGetDeviceQueue(m_device, m_graphicsQueueIndex, 0, &m_queue);
@@ -355,40 +361,62 @@ void VkApp::getCommandQueue()
     // Nothing to destroy -- the queue is owned by the device.
 }
 
-// Calling load_VK_EXTENSIONS from extensions_vk.cpp.  A Python script
-// from NVIDIA created extensions_vk.cpp from the current Vulkan spec
-// for the purpose of loading the symbols for all registered
-// extension.  This be (indistinguishable from) magic.
+/*********************************************************************
+ *
+ * 
+ * brief:  Calling load_VK_EXTENSIONS from extensions_vk.cpp. A Python script 
+ *         from NVIDIA created extensions_vk.cpp from the current Vulkan spec 
+ *         for the purpose of loading the symbols for all registered extension. 
+ *         This be (indistinguishable from) magic.
+ **********************************************************************/
 void VkApp::loadExtensions()
 {
     load_VK_EXTENSIONS(m_instance, vkGetInstanceProcAddr, m_device, vkGetDeviceProcAddr);
 }
 
-//  VkSurface is Vulkan's name for the screen.  Since GLFW creates and
-//  manages the window, it creates the VkSurface at our request.
+/*********************************************************************
+ *
+ * 
+ * brief:  VkSurface is Vulkan's name for the screen. Since GLFW creates 
+ *         and manages the window, it creates the VkSurface at our request.
+ **********************************************************************/
 void VkApp::getSurface()
 {
     VkBool32 isSupported;   // Supports drawing(presenting) on a screen
 
-    glfwCreateWindowSurface(m_instance, app->GLFW_window, nullptr, &m_surface);
-    vkGetPhysicalDeviceSurfaceSupportKHR(m_physicalDevice, m_graphicsQueueIndex,
+    VkResult glfwResult = glfwCreateWindowSurface(m_instance, app->GLFW_window, nullptr, &m_surface);
+    VkResult vkResult = vkGetPhysicalDeviceSurfaceSupportKHR(m_physicalDevice, m_graphicsQueueIndex,
                                          m_surface, &isSupported);
+
     // @@ Verify VK_SUCCESS from both the glfw... and the vk... calls.
     // @@ Verify isSupported==VK_TRUE, meaning that Vulkan supports presenting on this surface.
-    //To destroy: vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
+    // To destroy: vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
+    if (glfwResult != VK_SUCCESS || vkResult != VK_SUCCESS)
+    {
+      throw std::runtime_error("unsuccessful creation of surface!");
+    }
+
+    if (isSupported != VK_TRUE)
+    {
+      throw std::runtime_error("vulkan does not support presenting on this surface!");
+    }
 }
 
-// Create a command pool, used to allocate command buffers, which in
-// turn are use to gather and send commands to the GPU.  The flag
-// makes it possible to reuse command buffers.  The queue index
-// determines which queue the command buffers can be submitted to.
-// Use the command pool to also create a command buffer.
+/*********************************************************************
+ *
+ * 
+ * brief:  Create a command pool, used to allocate command buffers, which in 
+ *         turn are use to gather and send commands to the GPU.  The flag 
+ *         makes it possible to reuse command buffers.  The queue index 
+ *         determines which queue the command buffers can be submitted to.
+ *         Use the command pool to also create a command buffer.
+ **********************************************************************/
 void VkApp::createCommandPool()
 {
     VkCommandPoolCreateInfo poolCreateInfo{VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO};
     poolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     poolCreateInfo.queueFamilyIndex = m_graphicsQueueIndex;
-    vkCreateCommandPool(m_device, &poolCreateInfo, nullptr, &m_cmdPool);
+    VkResult result = vkCreateCommandPool(m_device, &poolCreateInfo, nullptr, &m_cmdPool);
     // @@ Verify VK_SUCCESS
     // To destroy: vkDestroyCommandPool(m_device, m_cmdPool, nullptr);
     
