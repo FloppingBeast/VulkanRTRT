@@ -239,26 +239,49 @@ void VkApp::createPhysicalDevice()
   
 }
 
+/*********************************************************************
+ *
+ * 
+ * brief:  Navigates list of queue families
+ **********************************************************************/
 void VkApp::chooseQueueIndex()
 {
-    VkQueueFlags requiredQueueFlags = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT
-                                      | VK_QUEUE_TRANSFER_BIT;
+  VkQueueFlags requiredQueueFlags = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT;
 
-    // Retrieve the list of queue families. (2-step.)
-    uint32_t mpCount;
-    vkGetPhysicalDeviceQueueFamilyProperties(m_physicalDevice, &mpCount, nullptr);
-    std::vector<VkQueueFamilyProperties> queueProperties(mpCount);
-    vkGetPhysicalDeviceQueueFamilyProperties(m_physicalDevice, &mpCount, queueProperties.data());
+  // Retrieve the list of queue families. (2-step.)
+  uint32_t mpCount;
+  vkGetPhysicalDeviceQueueFamilyProperties(m_physicalDevice, &mpCount, nullptr);
+  std::vector<VkQueueFamilyProperties> queueProperties(mpCount);
+  vkGetPhysicalDeviceQueueFamilyProperties(m_physicalDevice, &mpCount, queueProperties.data());
 
-    // @@ How many queue families does your Vulkan offer?  Which of
-    // the three flags does each offer?  Which of them, by index, has
-    // the above three required flags?
+  // @@ How many queue families does your Vulkan offer?  Which of
+  // the three flags does each offer?  Which of them, by index, has
+  // the above three required flags?
+  printf("QueueFamily count: %d\n", mpCount);
 
+  bool found = false;
+  for (int i = 0; i < mpCount; ++i)
+  {
     // @@ Search the list for (the index of) the first queue family
     // that has the required flags in queueProperties[i].queueFlags.  Record the index in
     // m_graphicsQueueIndex.
+    VkQueueFlags result = queueProperties[i].queueFlags & requiredQueueFlags;
+    printf("Queue Index: %i\n", i);
+    printf("%d\n", result);
 
-    // Nothing to destroy as m_graphicsQueueIndex is just an integer.
+    if (result == 0x7 && !found)
+    {
+      m_graphicsQueueIndex = i;
+      found = true;
+    }
+  }
+
+  if (!found)
+  {
+    throw std::runtime_error("queue family with required flags not found!");
+  }
+
+  // Nothing to destroy as m_graphicsQueueIndex is just an integer.
 }
 
 

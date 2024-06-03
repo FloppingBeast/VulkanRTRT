@@ -36,3 +36,9 @@ GPU Rejected
 AMD Radeon(TM) Graphics
 GPU Accepted
 AMD Radeon RX 6700S
+
+QueueFamily count: 3
+Queue Index: 0, VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT
+Queue Index: 1, VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT
+Queue Index: 2, VK_QUEUE_TRANSFER_BIT
+Index 0 has the three required flags
