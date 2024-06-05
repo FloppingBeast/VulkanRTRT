@@ -36,6 +36,9 @@ void VkApp::destroyAllVulkanResources()
 
     // Destroy all vulkan objects.
     // ...  All objects created on m_device must be destroyed before m_device.
+    vkDestroyPipelineLayout(m_device, m_postPipelineLayout, nullptr);
+    vkDestroyPipeline(m_device, m_postPipeline, nullptr);
+
     for (uint32_t i = 0; i < m_imageCount; i++)
     {
       vkDestroyFramebuffer(m_device, m_framebuffers[i], nullptr);
@@ -86,7 +89,7 @@ void VkApp::createInstance(bool doApiDump)
 
     // Suggestion: Parse a command line argument to set/unset doApiDump
     // If included, the api_dump layer should be first on reqInstanceLayers
-    if (doApiDump)
+    if (true)
         reqInstanceLayers.insert(reqInstanceLayers.begin(), "VK_LAYER_LUNARG_api_dump");
   
     uint32_t count;
@@ -956,10 +959,13 @@ void VkApp::createPostFrameBuffers()
   // Verify success (DONE)
 }
 
-
+/*********************************************************************
+ *
+ * 
+ * brief:  Create graphics pipelines
+ **********************************************************************/
 void VkApp::createPostPipeline()
 {
-
     // Creating the pipeline layout
     VkPipelineLayoutCreateInfo createInfo{VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO};
 
@@ -1087,18 +1093,24 @@ void VkApp::createPostPipeline()
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-    vkCreateGraphicsPipelines(m_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr,
-                              &m_postPipeline);
+    VkResult result = vkCreateGraphicsPipelines(m_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_postPipeline);
+
+    if (result != VK_SUCCESS)
+    {
+      throw std::runtime_error("failed to create graphics pipeline!");
+    }
 
     // The pipeline has fully compiled copies of the shaders, so these
     // intermediate (SPV) versions can be destroyed.
     // @@
     // For the two modules fragShaderModule and vertShaderModule
-    // destroy right *here* via vkDestroyShaderModule(m_device, ..., nullptr);
+    // destroy right *here* via vkDestroyShaderModule(m_device, ..., nullptr); (DONE)
+    vkDestroyShaderModule(m_device, vertShaderModule, nullptr);
+    vkDestroyShaderModule(m_device, fragShaderModule, nullptr);
     
     // To destroy:  vkDestroyPipelineLayout(m_device, m_postPipelineLayout, nullptr);
-    //  and:        vkDestroyPipeline(m_device, m_postPipeline, nullptr);
-    // Document the vkCreateGraphicsPipelines call with an api_dump.  
+    //  and:        vkDestroyPipeline(m_device, m_postPipeline, nullptr); (DONE)
+    // Document the vkCreateGraphicsPipelines call with an api_dump.  (DONE)
 
 }
 

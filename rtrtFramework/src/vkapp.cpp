@@ -49,7 +49,7 @@ VkApp::VkApp(App* _app) : app(_app)
 
     // createScBuffer();		// -> m_scImageBuffer
     // createPostDescriptor();		// -> m_postDesc
-    // createPostPipeline();  // -> m_postPipelineLayout
+    createPostPipeline();  // -> m_postPipelineLayout
 
     #ifdef GUI
     initGUI();
