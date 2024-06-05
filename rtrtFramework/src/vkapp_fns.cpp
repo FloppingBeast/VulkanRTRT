@@ -36,6 +36,7 @@ void VkApp::destroyAllVulkanResources()
 
     // Destroy all vulkan objects.
     // ...  All objects created on m_device must be destroyed before m_device.
+    vkDestroyRenderPass(m_device, m_postRenderPass, nullptr);
     m_depthImage.destroy(m_device);
     destroySwapchain();
     vkDestroyCommandPool(m_device, m_cmdPool, nullptr);
@@ -858,7 +859,11 @@ VkImageView VkApp::createImageView(VkImage image, VkFormat format,
 /*********************************************************************
  *
  * 
- * brief:  
+ * brief:  Need to tell Vulkan about the framebuffer attachments that will 
+ *         be used while rendering. We need to specify how many color and 
+ *         depth buffers there will be, how many samples to use for each of 
+ *         them and how their contents should be handled throughout the 
+ *         rendering operations.
  **********************************************************************/
 void VkApp::createPostRenderPass()
 {  
@@ -870,7 +875,7 @@ void VkApp::createPostRenderPass()
     attachments[0].samples     = VK_SAMPLE_COUNT_1_BIT;
 
     // Depth attachment
-    attachments[1].format        = VK_FORMAT_X8_D24_UNORM_PACK32;
+    attachments[1].format        = VK_FORMAT_D32_SFLOAT; // VK_FORMAT_X8_D24_UNORM_PACK32; original
     attachments[1].loadOp        = VK_ATTACHMENT_LOAD_OP_CLEAR;
     attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     attachments[1].finalLayout   = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
@@ -906,7 +911,7 @@ void VkApp::createPostRenderPass()
     renderPassInfo.pDependencies   = subpassDependencies.data();
 
     vkCreateRenderPass(m_device, &renderPassInfo, nullptr, &m_postRenderPass);
-    // To destroy: vkDestroyRenderPass(m_device, m_postRenderPass, nullptr);
+    // To destroy: vkDestroyRenderPass(m_device, m_postRenderPass, nullptr); (DONE)
 }
 
 // A VkFrameBuffer wraps several images into a render target --
