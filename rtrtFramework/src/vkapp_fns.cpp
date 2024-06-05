@@ -89,7 +89,7 @@ void VkApp::createInstance(bool doApiDump)
 
     // Suggestion: Parse a command line argument to set/unset doApiDump
     // If included, the api_dump layer should be first on reqInstanceLayers
-    if (true)
+    if (doApiDump)
         reqInstanceLayers.insert(reqInstanceLayers.begin(), "VK_LAYER_LUNARG_api_dump");
   
     uint32_t count;
@@ -608,17 +608,17 @@ void VkApp::createSwapchain()
     //   vkGetSwapchainImagesKHR(m_device, m_swapchain, ...);
     // Verify success (DONE)
     // Verify and document that you retrieved the correct number of images. (DONE)
-    uint32_t swapchainImageCount;
-    vkGetSwapchainImagesKHR(m_device, m_swapchain, &swapchainImageCount, nullptr);
-    std::vector<VkImage> swapchainImages(swapchainImageCount);
-    result = vkGetSwapchainImagesKHR(m_device, m_swapchain, &swapchainImageCount, swapchainImages.data());
+    vkGetSwapchainImagesKHR(m_device, m_swapchain, &m_imageCount, nullptr);
+    m_swapchainImages.resize(m_imageCount);
+    result = vkGetSwapchainImagesKHR(m_device, m_swapchain, &m_imageCount, m_swapchainImages.data());
 
     if (result != VK_SUCCESS)
     {
       throw std::runtime_error("failed to get swapchain images!");
     }
-    printf("Swapchain Image Count: %i\n", swapchainImageCount);
+    printf("Swapchain Image Count: %i\n", m_imageCount);
     
+    // Set the image count to the proper value and resize vectors to that
     m_barriers.resize(m_imageCount);
     m_imageViews.resize(m_imageCount);
 
