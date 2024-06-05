@@ -36,6 +36,7 @@ void VkApp::destroyAllVulkanResources()
 
     // Destroy all vulkan objects.
     // ...  All objects created on m_device must be destroyed before m_device.
+    m_depthImage.destroy(m_device);
     destroySwapchain();
     vkDestroyCommandPool(m_device, m_cmdPool, nullptr);
     vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
@@ -68,7 +69,7 @@ void VkApp::createInstance(bool doApiDump)
 
     // @@
     // Append each GLFW required extension in reqGLFWextensions to reqInstanceExtensions
-    // Print them out while your are at it
+    // Print them out while your are at it (DONE)
     printf("GLFW required extensions:\n");
     for (int i = 0; i < countGLFWextensions; ++i)
     {
@@ -89,7 +90,7 @@ void VkApp::createInstance(bool doApiDump)
     vkEnumerateInstanceLayerProperties(&count, availableLayers.data());
 
     // @@
-    // Print out the availableLayers
+    // Print out the availableLayers (DONE)
     printf("InstanceLayer count: %d\n", count);
     // ...  use availableLayers[i].layerName
     for (const VkLayerProperties& layers : availableLayers)
@@ -103,7 +104,7 @@ void VkApp::createInstance(bool doApiDump)
     vkEnumerateInstanceExtensionProperties(nullptr, &count, availableExtensions.data());
 
     // @@
-    // Print out the availableExtensions
+    // Print out the availableExtensions (DONE)
     printf("InstanceExtensions count: %d\n", count);
     // ...  use availableExtensions[i].extensionName
     for (const VkExtensionProperties& extension : availableExtensions)
@@ -129,9 +130,9 @@ void VkApp::createInstance(bool doApiDump)
     auto result = vkCreateInstance(&instanceCreateInfo, nullptr, &m_instance);
 
     // @@
-    // Verify VkResult is VK_SUCCESS
-    // Document with a cut-and-paste of the three list printouts above.
-    // To destroy: vkDestroyInstance(m_instance, nullptr);
+    // Verify VkResult is VK_SUCCESS (DONE)
+    // Document with a cut-and-paste of the three list printouts above. (DONE)
+    // To destroy: vkDestroyInstance(m_instance, nullptr); (DONE)
     if (result != VK_SUCCESS)
     {
       throw std::runtime_error("failed to create instance!");
@@ -191,6 +192,7 @@ void VkApp::createPhysicalDevice()
         //  If none are found, declare failure and abort
         //     (And then find a better GPU for this class.)
         //  If several are found, tell me all about your system
+        // (DONE)
 
         // Discrete GPU compatibility
         bool discrete = (GPUproperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU);
@@ -237,7 +239,7 @@ void VkApp::createPhysicalDevice()
         // each required extension.
     }
     
-    // @@ Document the GPU accepted, and any GPUs rejected.
+    // @@ Document the GPU accepted, and any GPUs rejected. (DONE)
     // Oddly, there is nothing to destroy here.
   
 }
@@ -259,7 +261,7 @@ void VkApp::chooseQueueIndex()
 
   // @@ How many queue families does your Vulkan offer?  Which of
   // the three flags does each offer?  Which of them, by index, has
-  // the above three required flags?
+  // the above three required flags? (DONE)
   printf("QueueFamily count: %d\n", mpCount);
 
   bool found = false;
@@ -267,7 +269,7 @@ void VkApp::chooseQueueIndex()
   {
     // @@ Search the list for (the index of) the first queue family
     // that has the required flags in queueProperties[i].queueFlags.  Record the index in
-    // m_graphicsQueueIndex.
+    // m_graphicsQueueIndex. (DONE)
     VkQueueFlags result = queueProperties[i].queueFlags & requiredQueueFlags;
     printf("Queue Index: %i\n", i);
     printf("%d\n", result);
@@ -296,7 +298,7 @@ void VkApp::createDevice()
 {
     // @@
     // Build a pNext chain of the following six "feature" structures:
-    //   features2->features11->features12->features13->accelFeature->rtPipelineFeature->NULL
+    //   features2->features11->features12->features13->accelFeature->rtPipelineFeature->NULL (DONE)
 
     // Hint: Keep it simple; add a second parameter (the pNext
     // pointer) to each structure's initializer pointing up to the
@@ -342,8 +344,8 @@ void VkApp::createDevice()
     VkResult result = vkCreateDevice(m_physicalDevice, &deviceCreateInfo, nullptr, &m_device);
     
     // @@
-    // Verify VK_SUCCESS
-    // To destroy: vkDestroyDevice(m_device, nullptr);
+    // Verify VK_SUCCESS (DONE)
+    // To destroy: vkDestroyDevice(m_device, nullptr); (DONE)
 
     if (result != VK_SUCCESS)
     {
@@ -390,9 +392,9 @@ void VkApp::getSurface()
     VkResult vkResult = vkGetPhysicalDeviceSurfaceSupportKHR(m_physicalDevice, m_graphicsQueueIndex,
                                          m_surface, &isSupported);
 
-    // @@ Verify VK_SUCCESS from both the glfw... and the vk... calls.
-    // @@ Verify isSupported==VK_TRUE, meaning that Vulkan supports presenting on this surface.
-    // To destroy: vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
+    // @@ Verify VK_SUCCESS from both the glfw... and the vk... calls. (DONE)
+    // @@ Verify isSupported==VK_TRUE, meaning that Vulkan supports presenting on this surface. (DONE)
+    // To destroy: vkDestroySurfaceKHR(m_instance, m_surface, nullptr); (DONE)
     if (glfwResult != VK_SUCCESS || vkResult != VK_SUCCESS)
     {
       throw std::runtime_error("unsuccessful creation of surface!");
@@ -419,8 +421,8 @@ void VkApp::createCommandPool()
     poolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     poolCreateInfo.queueFamilyIndex = m_graphicsQueueIndex;
     VkResult result = vkCreateCommandPool(m_device, &poolCreateInfo, nullptr, &m_cmdPool);
-    // @@ Verify VK_SUCCESS
-    // To destroy: vkDestroyCommandPool(m_device, m_cmdPool, nullptr);
+    // @@ Verify VK_SUCCESS (DONE)
+    // To destroy: vkDestroyCommandPool(m_device, m_cmdPool, nullptr); (DONE)
 
     if (result != VK_SUCCESS)
     {
@@ -433,7 +435,7 @@ void VkApp::createCommandPool()
     allocateInfo.commandBufferCount = 1;
     allocateInfo.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     result = vkAllocateCommandBuffers(m_device, &allocateInfo, &m_commandBuffer);
-    // @@ Verify VK_SUCCESS
+    // @@ Verify VK_SUCCESS (DONE)
     // Nothing to destroy -- the pool owns the command buffer.
 
     if (result != VK_SUCCESS)
@@ -445,7 +447,7 @@ void VkApp::createCommandPool()
 /*********************************************************************
  *
  * 
- * brief:  
+ * brief:  Creates the swap chain images (3)
  **********************************************************************/
 void VkApp::createSwapchain()
 {
@@ -463,16 +465,16 @@ void VkApp::createSwapchain()
     //  by making two calls to
     //    vkGetPhysicalDeviceSurfacePresentModesKHR(m_physicalDevice, m_surface, ...);
     // For an example, search above for vkGetPhysicalDeviceQueueFamilyProperties
-    // Retrieve the list of queue families. (2-step.)
+    // Retrieve the list of queue families. (2-step.) (DONE)
     uint32_t presentModeCount;
     vkGetPhysicalDeviceSurfacePresentModesKHR(m_physicalDevice, m_surface, &presentModeCount, nullptr);
     std::vector<VkPresentModeKHR> presentModes(presentModeCount);
     vkGetPhysicalDeviceSurfacePresentModesKHR(m_physicalDevice, m_surface, &presentModeCount, presentModes.data());
     
-    // @@ Document your preset modes. I especially want to know if
+    // @@ Document your present modes. I especially want to know if
     // your system offers VK_PRESENT_MODE_MAILBOX_KHR mode.  My
     // high-end windows desktop does; My higher-end Linux laptop
-    // doesn't.
+    // doesn't. (DONE)
     printf("Present Mode Count: %i\n", presentModeCount);
     for (const VkPresentModeKHR& mode : presentModes)
     {
@@ -484,21 +486,21 @@ void VkApp::createSwapchain()
     // @@ But choose VK_PRESENT_MODE_MAILBOX_KHR if it can be found in
     // the retrieved presentModes. Several Vulkan tutorials opine that
     // MODE_MAILBOX is the premier mode, but this may not be best for
-    // us -- expect more about this later.
+    // us -- expect more about this later. (DONE)
   
 
     // Get the list of VkFormat's that are supported:
     //@@ Do the two step process to retrieve a list of surface formats in
     //   std::vector<VkSurfaceFormatKHR> formats;
     // with two calls to
-    //   vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevice, m_surface, ...);
+    //   vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevice, m_surface, ...); (DONE)
 
     uint32_t formatCount;
     vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevice, m_surface, &formatCount, nullptr);
     std::vector<VkSurfaceFormatKHR> formats(formatCount);
     vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevice, m_surface, &formatCount, formats.data());
 
-    // @@ Document the list you get.
+    // @@ Document the list you get. (DONE)
 
     printf("Format Count: %i\n", formatCount);
     for (const VkSurfaceFormatKHR& format : formats)
@@ -507,14 +509,14 @@ void VkApp::createSwapchain()
     }
 
     // @@ Replace the above two temporary lines with the following two
-    // to choose the first format and its color space as defaults:
+    // to choose the first format and its color space as defaults: (DONE)
     VkFormat surfaceFormat = formats[0].format;
     VkColorSpaceKHR surfaceColor  = formats[0].colorSpace;
 
     // @@ Then search the formats (from several lines up) to choose
     // format VK_FORMAT_B8G8R8A8_UNORM (and its color space) if such
     // exists.  Document your list of formats/color-spaces, and your
-    // particular choice.
+    // particular choice.(DONE)
     for (const VkSurfaceFormatKHR& format : formats)
     {
       if (format.format == VK_FORMAT_B8G8R8A8_UNORM)
@@ -559,6 +561,8 @@ void VkApp::createSwapchain()
     // assert (imageCount == 3); // image count is 2
     // If this triggers, disable the assert, BUT help me understand
     // the situation that caused it.  
+    // Manually set swapchain image count to 3
+    imageCount = 3;
 
     // Create the swap chain
     VkImageUsageFlags imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT
@@ -583,18 +587,18 @@ void VkApp::createSwapchain()
     _i.clipped                  = true;
 
     VkResult result = vkCreateSwapchainKHR(m_device, &_i, nullptr, &m_swapchain);
-    // @@ Verify VK_SUCCESS
+    // @@ Verify VK_SUCCESS (DONE)
     if (result != VK_SUCCESS)
     {
       throw std::runtime_error("failed to create swapchain!");
     }
     
-    //@@ Do the two step process to retrieve the list of (3) swapchain images
+    //@@ Do the two step process to retrieve the list of (3) swapchain images (DONE)
     //   m_swapchainImages (of type std::vector<VkImage>)
     // with two calls to
     //   vkGetSwapchainImagesKHR(m_device, m_swapchain, ...);
-    // Verify success
-    // Verify and document that you retrieved the correct number of images.
+    // Verify success (DONE)
+    // Verify and document that you retrieved the correct number of images. (DONE)
     uint32_t swapchainImageCount;
     vkGetSwapchainImagesKHR(m_device, m_swapchain, &swapchainImageCount, nullptr);
     std::vector<VkImage> swapchainImages(swapchainImageCount);
@@ -672,15 +676,21 @@ void VkApp::createSwapchain()
     //NAME(m_queue, VK_OBJECT_TYPE_QUEUE, "m_queue");
         
     windowSize = swapchainExtent;
-    // To destroy:  Complete and call function destroySwapchain
+    // To destroy:  Complete and call function destroySwapchain (DONE)
 }
 
+/*********************************************************************
+ *
+ * 
+ * brief:  Destroys the swap chain, including the image views and 
+ *         synchronization items
+ **********************************************************************/
 void VkApp::destroySwapchain()
 {
     vkDeviceWaitIdle(m_device);
 
     // @@
-    // Destroy all (3)  m_imageViews with vkDestroyImageView(m_device, imageView, nullptr)
+    // Destroy all (3)  m_imageViews with vkDestroyImageView(m_device, imageView, nullptr) (DONE)
     for (VkImageView& imageView : m_imageViews)
     {
       vkDestroyImageView(m_device, imageView, nullptr);
@@ -699,34 +709,46 @@ void VkApp::destroySwapchain()
     m_barriers.clear();
 }
 
-
-
-void VkApp::createDepthResource() 
+/*********************************************************************
+ *
+ * 
+ * brief:  Creates depth image 
+ **********************************************************************/
+void VkApp::createDepthResource()
 {
-    uint mipLevels = 1;
+  uint mipLevels = 1;
 
-    // Note m_depthImage is type ImageWrap; a tiny wrapper around
-    // several related Vulkan objects.
-    m_depthImage = createImageWrap(windowSize.width, windowSize.height,
-                                    VK_FORMAT_X8_D24_UNORM_PACK32,
-                                    VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-                                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                                    mipLevels);
-    m_depthImage.imageView = createImageView(m_depthImage.image,
-                                             VK_FORMAT_X8_D24_UNORM_PACK32,
-                                             VK_IMAGE_ASPECT_DEPTH_BIT);
-    // To destroy: m_depthImage.destroy(m_device);
+  // Note m_depthImage is type ImageWrap; a tiny wrapper around
+  // several related Vulkan objects.
+  m_depthImage = createImageWrap(windowSize.width, windowSize.height,
+    VK_FORMAT_D32_SFLOAT,// VK_FORMAT_X8_D24_UNORM_PACK32, This was the original
+    VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+    mipLevels);
+
+  m_depthImage.imageView = createImageView(m_depthImage.image,
+    VK_FORMAT_D32_SFLOAT, // VK_FORMAT_X8_D24_UNORM_PACK32, original
+    VK_IMAGE_ASPECT_DEPTH_BIT);
+
+  // To destroy: m_depthImage.destroy(m_device); (DONE)
 }
 
-// Gets a list of memory types supported by the GPU, and search
-// through that list for one that matches the requested properties
-// flag.  The (only?) two types requested here are:
-//
-// (1) VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT: For the bulk of the memory
-// used by the GPU to store things internally.
-//
-// (2) VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT:
-// for memory visible to the CPU  for CPU to GPU copy operations.
+/*********************************************************************
+ * param:  typeFilter, unsigned int representing type of memory
+ * param:  properties, requested flags for memory to contain
+ *
+ * return: spot in memory containing specific properties
+ * 
+ * brief:  Gets a list of memory types supported by the GPU, and search 
+ *         through that list for one that matches the requested properties 
+ *         flag. The (only?) two types requested here are: 
+ * 
+ *         (1) VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT: For the bulk of the memory used 
+ *             by the GPU to store things internally. 
+ *          
+ *         (2) VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT: 
+ *             for memory visible to the CPU  for CPU to GPU copy operations.
+ **********************************************************************/
 uint32_t VkApp::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
 {
     VkPhysicalDeviceMemoryProperties memProperties;
@@ -740,11 +762,13 @@ uint32_t VkApp::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags proper
     throw std::runtime_error("failed to find suitable memory type!");
 }
 
-
-// A factory function for an ImageWrap, this creates a VkImage and
-// creates and binds an associated VkDeviceMemory object.  The
-// VkImageView and VkSampler are left empty to be created elsewhere as
-// needed.
+/*********************************************************************
+ * 
+ * 
+ * brief:  A factory function for an ImageWrap, this creates a VkImage and 
+ *         creates and binds an associated VkDeviceMemory object. The VkImageView 
+ *         and VkSampler are left empty to be created elsewhere as needed.
+ **********************************************************************/
 ImageWrap VkApp::createImageWrap(uint32_t width, uint32_t height,
                                  VkFormat format,
                                  VkImageUsageFlags usage,
@@ -766,7 +790,12 @@ ImageWrap VkApp::createImageWrap(uint32_t width, uint32_t height,
     imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
     imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    vkCreateImage(m_device, &imageInfo, nullptr, &myImage.image);
+    VkResult result =  vkCreateImage(m_device, &imageInfo, nullptr, &myImage.image);
+
+    if (result != VK_SUCCESS)
+    {
+      throw std::runtime_error("failed to create image!");
+    }
 
     VkMemoryRequirements memRequirements;
     vkGetImageMemoryRequirements(m_device, myImage.image, &memRequirements);
@@ -775,17 +804,32 @@ ImageWrap VkApp::createImageWrap(uint32_t width, uint32_t height,
     allocInfo.allocationSize = memRequirements.size;
     allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
-    vkAllocateMemory(m_device, &allocInfo, nullptr, &myImage.memory);
+    result = vkAllocateMemory(m_device, &allocInfo, nullptr, &myImage.memory);
+
+    if (result != VK_SUCCESS)
+    {
+      throw std::runtime_error("failed to allocate memory!");
+    }
     
-    vkBindImageMemory(m_device, myImage.image, myImage.memory, 0);
+    result = vkBindImageMemory(m_device, myImage.image, myImage.memory, 0);
+
+    if (result != VK_SUCCESS)
+    {
+      throw std::runtime_error("failed to bind image memory!");
+    }
 
     myImage.imageView = VK_NULL_HANDLE;
     myImage.sampler = VK_NULL_HANDLE;
 
     return myImage;
-    // @@ Verify success for vkCreateImage, and vkAllocateMemory
+    // @@ Verify success for vkCreateImage, and vkAllocateMemory (DONE)
 }
 
+/*********************************************************************
+ *
+ * 
+ * brief:  Wrapper to create image view
+ **********************************************************************/
 VkImageView VkApp::createImageView(VkImage image, VkFormat format,
                                          VkImageAspectFlagBits aspect)
 {
@@ -800,12 +844,22 @@ VkImageView VkApp::createImageView(VkImage image, VkFormat format,
     viewInfo.subresourceRange.layerCount = 1;
     
     VkImageView imageView;
-    vkCreateImageView(m_device, &viewInfo, nullptr, &imageView);
-    // @@ Verify success for vkCreateImageView
+    VkResult result = vkCreateImageView(m_device, &viewInfo, nullptr, &imageView);
+    // @@ Verify success for vkCreateImageView (DONE)
+
+    if (result != VK_SUCCESS)
+    {
+      throw std::runtime_error("failed to create image view!");
+    }
     
     return imageView;
 }
 
+/*********************************************************************
+ *
+ * 
+ * brief:  
+ **********************************************************************/
 void VkApp::createPostRenderPass()
 {  
     std::array<VkAttachmentDescription, 2> attachments{};

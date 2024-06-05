@@ -48,7 +48,7 @@ Present Modes: 3
 	VK_PRESENT_MODE_FIFO_KHR
     	VK_PRESENT_MODE_FIFO_RELAXED_KHR
 
-Formats | Color Spaces: 20
+Surface Formats | Color Spaces (20 total pairs)
 	VK_FORMAT_B8G8R8A8_UNORM           | VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
 	VK_FORMAT_B8G8R8A8_SRGB		   | VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
  	VK_FORMAT_R4G4B4A4_UNORM_PACK16    | VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
@@ -70,6 +70,7 @@ Formats | Color Spaces: 20
 	VK_FORMAT_R16G16B16A16_SFLOAT	   | VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
 	VK_FORMAT_B10G11R11_UFLOAT_PACK32  | VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
 
-I chose the first format in my list which held VK_FORMAT_B8G8R8A8_UNORM as a format andVK_COLOR_SPACE_SRGB_NONLINEAR_KHR as its' colorspace.
+I chose the first format in my list which held VK_FORMAT_B8G8R8A8_UNORM as a format and VK_COLOR_SPACE_SRGB_NONLINEAR_KHR as its' color space.
 
- 
+Swapchain Image Count: 3
+
