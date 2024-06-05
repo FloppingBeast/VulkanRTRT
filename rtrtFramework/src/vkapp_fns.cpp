@@ -36,6 +36,11 @@ void VkApp::destroyAllVulkanResources()
 
     // Destroy all vulkan objects.
     // ...  All objects created on m_device must be destroyed before m_device.
+    for (uint32_t i = 0; i < m_imageCount; i++)
+    {
+      vkDestroyFramebuffer(m_device, m_framebuffers[i], nullptr);
+    }
+
     vkDestroyRenderPass(m_device, m_postRenderPass, nullptr);
     m_depthImage.destroy(m_device);
     destroySwapchain();
@@ -914,31 +919,41 @@ void VkApp::createPostRenderPass()
     // To destroy: vkDestroyRenderPass(m_device, m_postRenderPass, nullptr); (DONE)
 }
 
-// A VkFrameBuffer wraps several images into a render target --
-// usually a color buffer and a depth buffer.
+/*********************************************************************
+ *
+ * 
+ * brief:  A VkFrameBuffer wraps several images into a render target 
+ *         -- usually a color buffer and a depth buffer.
+ **********************************************************************/
 void VkApp::createPostFrameBuffers()
 {
-    std::array<VkImageView, 2> fbattachments{};
-    
-    // Create frame buffers for every swap chain image
-    VkFramebufferCreateInfo _ci{VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO};
-    _ci.renderPass      = m_postRenderPass;
-    _ci.width           = windowSize.width;
-    _ci.height          = windowSize.height;
-    _ci.layers          = 1;
-    _ci.attachmentCount = 2;
-    _ci.pAttachments    = fbattachments.data();
+  std::array<VkImageView, 2> fbattachments{};
 
-    // Each of the three swapchain images gets an associated frame
-    // buffer, all sharing one depth buffer.
-    m_framebuffers.resize(m_imageCount);
-    for(uint32_t i = 0; i < m_imageCount; i++) {
-        fbattachments[0] = m_imageViews[i];         // A color attachment from the swap chain
-        fbattachments[1] = m_depthImage.imageView;  // A depth attachment
-        vkCreateFramebuffer(m_device, &_ci, nullptr, &m_framebuffers[i]); }
+  // Create frame buffers for every swap chain image
+  VkFramebufferCreateInfo _ci{ VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO };
+  _ci.renderPass = m_postRenderPass;
+  _ci.width = windowSize.width;
+  _ci.height = windowSize.height;
+  _ci.layers = 1;
+  _ci.attachmentCount = 2;
+  _ci.pAttachments = fbattachments.data();
 
-    // To destroy: In a loop, call: vkDestroyFramebuffer(m_device, m_framebuffers[i], nullptr);
-    // Verify success
+  // Each of the three swapchain images gets an associated frame
+  // buffer, all sharing one depth buffer.
+  m_framebuffers.resize(m_imageCount);
+  for (uint32_t i = 0; i < m_imageCount; i++)
+  {
+    fbattachments[0] = m_imageViews[i];         // A color attachment from the swap chain
+    fbattachments[1] = m_depthImage.imageView;  // A depth attachment
+    VkResult result = vkCreateFramebuffer(m_device, &_ci, nullptr, &m_framebuffers[i]);
+    if (result != VK_SUCCESS)
+    {
+      throw std::runtime_error("failed to create frame buffer!");
+    }
+  }
+
+  // To destroy: In a loop, call: vkDestroyFramebuffer(m_device, m_framebuffers[i], nullptr); (DONE)
+  // Verify success (DONE)
 }
 
 
