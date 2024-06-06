@@ -80,11 +80,11 @@ VkApp::VkApp(App* _app) : app(_app)
 
 void VkApp::drawFrame()
 {
-    // prepareFrame();
+    prepareFrame();
     
-    //VkCommandBufferBeginInfo beginInfo{VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
-    //beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-    //vkBeginCommandBuffer(m_commandBuffer, &beginInfo);
+    VkCommandBufferBeginInfo beginInfo{VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    vkBeginCommandBuffer(m_commandBuffer, &beginInfo);
     {   // Extra indent for code clarity
         // updateCameraBuffer();
         
@@ -95,12 +95,12 @@ void VkApp::drawFrame()
         // else {
         //     rasterize(); }
         
-        //postProcess(); //  tone mapper and output to swapchain image.
+        postProcess(); //  tone mapper and output to swapchain image.
         
     }   // Done recording;  Execute!
     
-    //vkEndCommandBuffer(m_commandBuffer);
-    //submitFrame();  // Submit for display
+    vkEndCommandBuffer(m_commandBuffer);
+    submitFrame();  // Submit for display
 }
 
 
@@ -133,17 +133,19 @@ void VkApp::submitTempCmdBuffer(VkCommandBuffer cmdBuffer)
 
 void VkApp::prepareFrame()
 {
-    // Acquire the next image from the swap chain --> m_swapchainIndex
-    VkResult result = vkAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, m_readSemaphore,
-                                            (VkFence)VK_NULL_HANDLE, &m_swapchainIndex);
+  // Use a fence to wait until the command buffer has finished execution before using it again
+  while (VK_TIMEOUT == vkWaitForFences(m_device, 1, &m_waitFence, VK_TRUE, 1'000'000))
+  {
+  }
 
-    // Check if window has been resized -- or other(??) swapchain specific event
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-        recreateSizedResources(windowSize); }
+  // Acquire the next image from the swap chain --> m_swapchainIndex
+  VkResult result = vkAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, m_readSemaphore,
+    (VkFence)VK_NULL_HANDLE, &m_swapchainIndex);
 
-    // Use a fence to wait until the command buffer has finished execution before using it again
-    while (VK_TIMEOUT == vkWaitForFences(m_device, 1, &m_waitFence, VK_TRUE, 1'000'000))
-        {}
+  // Check if window has been resized -- or other(??) swapchain specific event
+  if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+    recreateSizedResources(windowSize);
+  }
 }
 
 void VkApp::submitFrame()

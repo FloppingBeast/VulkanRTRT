@@ -84,7 +84,7 @@ void VkApp::createInstance(bool doApiDump)
     {
       reqInstanceExtensions.push_back(reqGLFWextensions[i]);
 
-      printf("%s\n", reqGLFWextensions[i]);
+      // printf("%s\n", reqGLFWextensions[i]);
     }
 
     // Suggestion: Parse a command line argument to set/unset doApiDump
@@ -102,10 +102,10 @@ void VkApp::createInstance(bool doApiDump)
     // Print out the availableLayers (DONE)
     printf("InstanceLayer count: %d\n", count);
     // ...  use availableLayers[i].layerName
-    for (const VkLayerProperties& layers : availableLayers)
+    /*for (const VkLayerProperties& layers : availableLayers)
     {
-      printf("%s\n", layers.layerName);
-    }
+       printf("%s\n", layers.layerName);
+    }*/
 
     // Another two step dance
     vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
@@ -116,10 +116,10 @@ void VkApp::createInstance(bool doApiDump)
     // Print out the availableExtensions (DONE)
     printf("InstanceExtensions count: %d\n", count);
     // ...  use availableExtensions[i].extensionName
-    for (const VkExtensionProperties& extension : availableExtensions)
+    /*for (const VkExtensionProperties& extension : availableExtensions)
     {
-      printf("%s\n", extension.extensionName);
-    }
+       printf("%s\n", extension.extensionName);
+    }*/
 
     VkApplicationInfo applicationInfo{VK_STRUCTURE_TYPE_APPLICATION_INFO};
     applicationInfo.pApplicationName = "rtrt";
@@ -164,7 +164,6 @@ void VkApp::createPhysicalDevice()
     std::vector<uint32_t> compatibleDevices;
   
     printf("%d devices\n", physicalDevicesCount);
-    int i = 0;
 
     // For each GPU:
     for (auto physicalDevice : physicalDevices) {
@@ -230,16 +229,16 @@ void VkApp::createPhysicalDevice()
         // GPU was compatible
         if (discrete && extensions)
         {
-          printf("GPU Accepted\n");
-          printf("%s\n", GPUproperties.deviceName);
+          //printf("GPU Accepted\n");
+          //printf("%s\n", GPUproperties.deviceName);
           m_physicalDevice = physicalDevice;
         }
         // GPU was not compatible
-        else
+        /*else
         {
           printf("GPU Rejected\n");
           printf("%s\n", GPUproperties.deviceName);
-        }
+        }*/
 
 
         // Hint: Instead of a double nested pair of loops consider
@@ -271,7 +270,7 @@ void VkApp::chooseQueueIndex()
   // @@ How many queue families does your Vulkan offer?  Which of
   // the three flags does each offer?  Which of them, by index, has
   // the above three required flags? (DONE)
-  printf("QueueFamily count: %d\n", mpCount);
+  // printf("QueueFamily count: %d\n", mpCount);
 
   bool found = false;
   for (int i = 0; i < mpCount; ++i)
@@ -280,8 +279,8 @@ void VkApp::chooseQueueIndex()
     // that has the required flags in queueProperties[i].queueFlags.  Record the index in
     // m_graphicsQueueIndex. (DONE)
     VkQueueFlags result = queueProperties[i].queueFlags & requiredQueueFlags;
-    printf("Queue Index: %i\n", i);
-    printf("%d\n", result);
+    // printf("Queue Index: %i\n", i);
+    // printf("%d\n", result);
 
     if (result == 0x7 && !found)
     {
@@ -333,7 +332,7 @@ void VkApp::createDevice()
     // Let Vulkan fill in all structures on the pNext chain
     vkGetPhysicalDeviceFeatures2(m_physicalDevice, &features2);
     // @@ If you are curious, document the whole filled in pNext chain
-    // using an api_dump and examine all the many features. 
+    // using an api_dump and examine all the many features.  (DONE)
 
     float priority = 1.0;
     VkDeviceQueueCreateInfo queueInfo{VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO};
@@ -484,14 +483,14 @@ void VkApp::createSwapchain()
     // your system offers VK_PRESENT_MODE_MAILBOX_KHR mode.  My
     // high-end windows desktop does; My higher-end Linux laptop
     // doesn't. (DONE)
-    printf("Present Mode Count: %i\n", presentModeCount);
+    /*printf("Present Mode Count: %i\n", presentModeCount);
     for (const VkPresentModeKHR& mode : presentModes)
     {
       printf("%i\n", mode);
-    }
+    }*/
 
     // Choose VK_PRESENT_MODE_FIFO_KHR as a default (this must be supported)
-    VkPresentModeKHR swapchainPresentMode = VK_PRESENT_MODE_FIFO_KHR; // Support is required.
+    VkPresentModeKHR swapchainPresentMode = VK_PRESENT_MODE_MAILBOX_KHR; // Support is required.
     // @@ But choose VK_PRESENT_MODE_MAILBOX_KHR if it can be found in
     // the retrieved presentModes. Several Vulkan tutorials opine that
     // MODE_MAILBOX is the premier mode, but this may not be best for
@@ -511,11 +510,11 @@ void VkApp::createSwapchain()
 
     // @@ Document the list you get. (DONE)
 
-    printf("Format Count: %i\n", formatCount);
+    /*printf("Format Count: %i\n", formatCount);
     for (const VkSurfaceFormatKHR& format : formats)
     {
       printf("%i, %i\n", format.format, format.colorSpace);
-    }
+    }*/
 
     // @@ Replace the above two temporary lines with the following two
     // to choose the first format and its color space as defaults: (DONE)
@@ -567,11 +566,9 @@ void VkApp::createSwapchain()
         && imageCount > capabilities.maxImageCount) {
             imageCount = capabilities.maxImageCount; }
     
-    // assert (imageCount == 3); // image count is 2
+    assert (imageCount == 3);
     // If this triggers, disable the assert, BUT help me understand
     // the situation that caused it.  
-    // Manually set swapchain image count to 3
-    imageCount = 3;
 
     // Create the swap chain
     VkImageUsageFlags imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT
@@ -616,7 +613,7 @@ void VkApp::createSwapchain()
     {
       throw std::runtime_error("failed to get swapchain images!");
     }
-    printf("Swapchain Image Count: %i\n", m_imageCount);
+    // printf("Swapchain Image Count: %i\n", m_imageCount);
     
     // Set the image count to the proper value and resize vectors to that
     m_barriers.resize(m_imageCount);
@@ -730,13 +727,13 @@ void VkApp::createDepthResource()
   // Note m_depthImage is type ImageWrap; a tiny wrapper around
   // several related Vulkan objects.
   m_depthImage = createImageWrap(windowSize.width, windowSize.height,
-    VK_FORMAT_D32_SFLOAT,// VK_FORMAT_X8_D24_UNORM_PACK32, This was the original
+    VK_FORMAT_X8_D24_UNORM_PACK32, 
     VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
     mipLevels);
 
   m_depthImage.imageView = createImageView(m_depthImage.image,
-    VK_FORMAT_D32_SFLOAT, // VK_FORMAT_X8_D24_UNORM_PACK32, original
+    VK_FORMAT_X8_D24_UNORM_PACK32,
     VK_IMAGE_ASPECT_DEPTH_BIT);
 
   // To destroy: m_depthImage.destroy(m_device); (DONE)
@@ -883,7 +880,7 @@ void VkApp::createPostRenderPass()
     attachments[0].samples     = VK_SAMPLE_COUNT_1_BIT;
 
     // Depth attachment
-    attachments[1].format        = VK_FORMAT_D32_SFLOAT; // VK_FORMAT_X8_D24_UNORM_PACK32; original
+    attachments[1].format        = VK_FORMAT_X8_D24_UNORM_PACK32; 
     attachments[1].loadOp        = VK_ATTACHMENT_LOAD_OP_CLEAR;
     attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     attachments[1].finalLayout   = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;

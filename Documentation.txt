@@ -1,14 +1,19 @@
+lawrence.winters@digipen.edu
+CS398 Project 1
+
 GLFW required extensions:
 VK_KHR_surface
 VK_KHR_win32_surface
 
-InstanceLayer count: 14
-VK_LAYER_AMD_switchable_graphics
-VK_LAYER_OBS_HOOK
+InstanceLayer count: 16
+VK_LAYER_NV_optimus
+VK_LAYER_EOS_Overlay
+VK_LAYER_OW_OVERLAY
+VK_LAYER_OW_OBS_HOOK
 VK_LAYER_VALVE_steam_overlay
 VK_LAYER_VALVE_steam_fossilize
-VK_LAYER_EOS_Overlay
-VK_LAYER_EOS_Overlay
+VK_LAYER_OBS_HOOK
+VK_LAYER_ROCKSTAR_GAMES_social_club
 VK_LAYER_LUNARG_api_dump
 VK_LAYER_LUNARG_gfxreconstruct
 VK_LAYER_KHRONOS_synchronization2
@@ -18,7 +23,7 @@ VK_LAYER_LUNARG_screenshot
 VK_LAYER_KHRONOS_profiles
 VK_LAYER_KHRONOS_shader_object
 
-InstanceExtensions count: 11
+InstanceExtensions count: 16
 VK_KHR_device_group_creation
 VK_KHR_external_fence_capabilities
 VK_KHR_external_memory_capabilities
@@ -26,49 +31,66 @@ VK_KHR_external_semaphore_capabilities
 VK_KHR_get_physical_device_properties2
 VK_KHR_get_surface_capabilities2
 VK_KHR_surface
+VK_KHR_surface_protected_capabilities
 VK_KHR_win32_surface
 VK_EXT_debug_report
 VK_EXT_debug_utils
+VK_EXT_surface_maintenance1
 VK_EXT_swapchain_colorspace
+VK_NV_external_memory_capabilities
+VK_KHR_portability_enumeration
+VK_LUNARG_direct_driver_loading
 
-2 devices
-GPU Rejected:
-	AMD Radeon(TM) Graphics
+1 devices
 GPU Accepted:
-	AMD Radeon RX 6700S
+	NVIDIA GeForce RTX 3090
 
-QueueFamily count: 3
-Queue Index: 0, VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT
-Queue Index: 1, VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT
-Queue Index: 2, VK_QUEUE_TRANSFER_BIT
+QueueFamily count: 6
+Queue Index: 0, VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT (7)
+Queue Index: 1, VK_QUEUE_TRANSFER_BIT (4)
+Queue Index: 2, VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT (6)
+Queue Index: 3, VK_QUEUE_TRANSFER_BIT (4)
+Queue Index: 4, VK_QUEUE_TRANSFER_BIT (4)
+Queue Index: 5, VK_QUEUE_TRANSFER_BIT (4)
 Index 0 has the three required flags
 
-Present Modes: 3
+CreateDevice pNext chain:
+ 	pNext:                          VkPhysicalDeviceFeatures2 = 000000F53090E380:
+            sType:                          VkStructureType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 (1000059000)
+            pNext:                          void* = VkPhysicalDeviceVulkan11Features
+            
+        pNext:                          VkPhysicalDeviceVulkan11Features = 000000F53090E320:
+            sType:                          VkStructureType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES (49)            
+	    pNext:                          void* = VkPhysicalDeviceVulkan12Features
+            
+        pNext:                          VkPhysicalDeviceVulkan12Features = 000000F53090E230:
+            sType:                          VkStructureType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES (51)            
+	    pNext:                          void* = VkPhysicalDeviceVulkan13Features
+            
+        pNext:                          VkPhysicalDeviceVulkan13Features = 000000F53090E1C0:
+            sType:                          VkStructureType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES (53)            
+	    pNext:                          void* = VkPhysicalDeviceAccelerationStructureFeaturesKHR
+
+        pNext:                          VkPhysicalDeviceAccelerationStructureFeaturesKHR = 000000F53090E178:
+            sType:                          VkStructureType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR (1000150013)
+            pNext:                          void* = VkPhysicalDeviceRayTracingPipelineFeaturesKHR
+
+        pNext:                          VkPhysicalDeviceRayTracingPipelineFeaturesKHR = 000000F53090E138:
+            sType:                          VkStructureType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR (1000347000)
+            pNext:                          void* = NULL
+
+Present Modes: 4
 	VK_PRESENT_MODE_IMMEDIATE_KHR
+	VK_PRESENT_MODE_MAILBOX_KHR
 	VK_PRESENT_MODE_FIFO_KHR
     	VK_PRESENT_MODE_FIFO_RELAXED_KHR
 
-Surface Formats | Color Spaces (20 total pairs)
-	VK_FORMAT_B8G8R8A8_UNORM           | VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
-	VK_FORMAT_B8G8R8A8_SRGB		   | VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
- 	VK_FORMAT_R4G4B4A4_UNORM_PACK16    | VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
-    	VK_FORMAT_B4G4R4A4_UNORM_PACK16	   | VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
-    	VK_FORMAT_R5G6B5_UNORM_PACK16	   | VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
-    	VK_FORMAT_B5G6R5_UNORM_PACK16	   | VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
-	VK_FORMAT_A1R5G5B5_UNORM_PACK16	   | VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
-	VK_FORMAT_R8G8B8A8_UNORM	   | VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
-   	VK_FORMAT_R8G8B8A8_SNORM	   | VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
-	VK_FORMAT_R8G8B8A8_SRGB		   | VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
-	VK_FORMAT_B8G8R8A8_SNORM	   | VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
-	VK_FORMAT_A8B8G8R8_UNORM_PACK32	   | VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
-    	VK_FORMAT_A8B8G8R8_SNORM_PACK32	   | VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
-	VK_FORMAT_A8B8G8R8_SRGB_PACK32	   | VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
-    	VK_FORMAT_A2R10G10B10_UNORM_PACK32 | VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
-	VK_FORMAT_A2B10G10R10_UNORM_PACK32 | VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
-	VK_FORMAT_R16G16B16A16_UNORM	   | VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
-    	VK_FORMAT_R16G16B16A16_SNORM	   | VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
-	VK_FORMAT_R16G16B16A16_SFLOAT	   | VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
-	VK_FORMAT_B10G11R11_UFLOAT_PACK32  | VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
+Surface Formats | Color Spaces (5 total pairs)
+	VK_FORMAT_B8G8R8A8_UNORM (44) 		| VK_COLOR_SPACE_SRGB_NONLINEAR_KHR (0)
+	VK_FORMAT_B8G8R8A8_SRGB  (50)         	| VK_COLOR_SPACE_SRGB_NONLINEAR_KHR (0)
+	VK_FORMAT_R8G8B8A8_UNORM (37)          	| VK_COLOR_SPACE_SRGB_NONLINEAR_KHR (0)
+	VK_FORMAT_R8G8B8A8_SRGB  (43) 		| VK_COLOR_SPACE_SRGB_NONLINEAR_KHR (0)
+	VK_FORMAT_A2B10G10R10_UNORM_PACK32 (64) | VK_COLOR_SPACE_SRGB_NONLINEAR_KHR (0)
 
 I chose the first format in my list which held VK_FORMAT_B8G8R8A8_UNORM as a format and VK_COLOR_SPACE_SRGB_NONLINEAR_KHR as its' color space.
 
@@ -76,34 +98,35 @@ Swapchain Image Count: 3
 
 vkCreateGraphicsPipelines API_DUMP:
 
+Thread 0, Frame 0:
 vkCreateGraphicsPipelines(device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines) returns VkResult VK_SUCCESS (0):
-    device:                         VkDevice = 00000239FE88EC50
+    device:                         VkDevice = 000001E04862E6F0
     pipelineCache:                  VkPipelineCache = 0000000000000000
     createInfoCount:                uint32_t = 1
-    pCreateInfos:                   const VkGraphicsPipelineCreateInfo* = 0000006E2FD0E540
-        pCreateInfos[0]:                const VkGraphicsPipelineCreateInfo = 0000006E2FD0E540:
+    pCreateInfos:                   const VkGraphicsPipelineCreateInfo* = 00000083DADCEA20
+        pCreateInfos[0]:                const VkGraphicsPipelineCreateInfo = 00000083DADCEA20:
             sType:                          VkStructureType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO (28)
             pNext:                          const void* = NULL
             flags:                          VkPipelineCreateFlags = 0
             stageCount:                     uint32_t = 2
-            pStages:                        const VkPipelineShaderStageCreateInfo* = 0000006E2FD0E1B0
-                pStages[0]:                     const VkPipelineShaderStageCreateInfo = 0000006E2FD0E1B0:
+            pStages:                        const VkPipelineShaderStageCreateInfo* = 00000083DADCE690
+                pStages[0]:                     const VkPipelineShaderStageCreateInfo = 00000083DADCE690:
                     sType:                          VkStructureType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO (18)
                     pNext:                          const void* = NULL
                     flags:                          VkPipelineShaderStageCreateFlags = 0
                     stage:                          VkShaderStageFlagBits = 1 (VK_SHADER_STAGE_VERTEX_BIT)
-                    module:                         VkShaderModule = E7E6D0000000000F
+                    module:                         VkShaderModule = DD3A8A0000000015
                     pName:                          const char* = "main"
                     pSpecializationInfo:            const VkSpecializationInfo* = NULL
-                pStages[1]:                     const VkPipelineShaderStageCreateInfo = 0000006E2FD0E1E0:
+                pStages[1]:                     const VkPipelineShaderStageCreateInfo = 00000083DADCE6C0:
                     sType:                          VkStructureType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO (18)
                     pNext:                          const void* = NULL
                     flags:                          VkPipelineShaderStageCreateFlags = 0
                     stage:                          VkShaderStageFlagBits = 16 (VK_SHADER_STAGE_FRAGMENT_BIT)
-                    module:                         VkShaderModule = D5B26F0000000010
+                    module:                         VkShaderModule = D897D90000000016
                     pName:                          const char* = "main"
                     pSpecializationInfo:            const VkSpecializationInfo* = NULL
-            pVertexInputState:              const VkPipelineVertexInputStateCreateInfo* = 0000006E2FD0E228:
+            pVertexInputState:              const VkPipelineVertexInputStateCreateInfo* = 00000083DADCE708:
                 sType:                          VkStructureType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO (19)
                 pNext:                          const void* = NULL
                 flags:                          VkPipelineVertexInputStateCreateFlags = 0
@@ -111,20 +134,20 @@ vkCreateGraphicsPipelines(device, pipelineCache, createInfoCount, pCreateInfos, 
                 pVertexBindingDescriptions:     const VkVertexInputBindingDescription* = NULL
                 vertexAttributeDescriptionCount: uint32_t = 0
                 pVertexAttributeDescriptions:   const VkVertexInputAttributeDescription* = NULL
-            pInputAssemblyState:            const VkPipelineInputAssemblyStateCreateInfo* = 0000006E2FD0E278:
+            pInputAssemblyState:            const VkPipelineInputAssemblyStateCreateInfo* = 00000083DADCE758:
                 sType:                          VkStructureType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO (20)
                 pNext:                          const void* = NULL
                 flags:                          VkPipelineInputAssemblyStateCreateFlags = 0
                 topology:                       VkPrimitiveTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST (3)
                 primitiveRestartEnable:         VkBool32 = 0
             pTessellationState:             const VkPipelineTessellationStateCreateInfo* = NULL
-            pViewportState:                 const VkPipelineViewportStateCreateInfo* = 0000006E2FD0E318:
+            pViewportState:                 const VkPipelineViewportStateCreateInfo* = 00000083DADCE7F8:
                 sType:                          VkStructureType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO (22)
                 pNext:                          const void* = NULL
                 flags:                          VkPipelineViewportStateCreateFlags = 0
                 viewportCount:                  uint32_t = 1
-                pViewports:                     const VkViewport* = 0000006E2FD0E2B8
-                    pViewports[0]:                  const VkViewport = 0000006E2FD0E2B8:
+                pViewports:                     const VkViewport* = 00000083DADCE798
+                    pViewports[0]:                  const VkViewport = 00000083DADCE798:
                         x:                              float = 0
                         y:                              float = 0
                         width:                          float = 1280
@@ -132,15 +155,15 @@ vkCreateGraphicsPipelines(device, pipelineCache, createInfoCount, pCreateInfos, 
                         minDepth:                       float = 0
                         maxDepth:                       float = 1
                 scissorCount:                   uint32_t = 1
-                pScissors:                      const VkRect2D* = 0000006E2FD0E2E8
-                    pScissors[0]:                   const VkRect2D = 0000006E2FD0E2E8:
-                        offset:                         VkOffset2D = 0000006E2FD0E2E8:
+                pScissors:                      const VkRect2D* = 00000083DADCE7C8
+                    pScissors[0]:                   const VkRect2D = 00000083DADCE7C8:
+                        offset:                         VkOffset2D = 00000083DADCE7C8:
                             x:                              int32_t = 0
                             y:                              int32_t = 0
-                        extent:                         VkExtent2D = 0000006E2FD0E2F0:
+                        extent:                         VkExtent2D = 00000083DADCE7D0:
                             width:                          uint32_t = 1280
                             height:                         uint32_t = 768
-            pRasterizationState:            const VkPipelineRasterizationStateCreateInfo* = 0000006E2FD0E370:
+            pRasterizationState:            const VkPipelineRasterizationStateCreateInfo* = 00000083DADCE850:
                 sType:                          VkStructureType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO (23)
                 pNext:                          const void* = NULL
                 flags:                          VkPipelineRasterizationStateCreateFlags = 0
@@ -154,7 +177,7 @@ vkCreateGraphicsPipelines(device, pipelineCache, createInfoCount, pCreateInfos, 
                 depthBiasClamp:                 float = 0
                 depthBiasSlopeFactor:           float = 0
                 lineWidth:                      float = 1
-            pMultisampleState:              const VkPipelineMultisampleStateCreateInfo* = 0000006E2FD0E3C8:
+            pMultisampleState:              const VkPipelineMultisampleStateCreateInfo* = 00000083DADCE8A8:
                 sType:                          VkStructureType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO (24)
                 pNext:                          const void* = NULL
                 flags:                          VkPipelineMultisampleStateCreateFlags = 0
@@ -164,7 +187,7 @@ vkCreateGraphicsPipelines(device, pipelineCache, createInfoCount, pCreateInfos, 
                 pSampleMask:                    const VkSampleMask* = NULL
                 alphaToCoverageEnable:          VkBool32 = 0
                 alphaToOneEnable:               VkBool32 = 0
-            pDepthStencilState:             const VkPipelineDepthStencilStateCreateInfo* = 0000006E2FD0E420:
+            pDepthStencilState:             const VkPipelineDepthStencilStateCreateInfo* = 00000083DADCE900:
                 sType:                          VkStructureType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO (25)
                 pNext:                          const void* = NULL
                 flags:                          VkPipelineDepthStencilStateCreateFlags = 0
@@ -173,7 +196,7 @@ vkCreateGraphicsPipelines(device, pipelineCache, createInfoCount, pCreateInfos, 
                 depthCompareOp:                 VkCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL (3)
                 depthBoundsTestEnable:          VkBool32 = 0
                 stencilTestEnable:              VkBool32 = 0
-                front:                          VkStencilOpState = 0000006E2FD0E448:
+                front:                          VkStencilOpState = 00000083DADCE928:
                     failOp:                         VkStencilOp = VK_STENCIL_OP_KEEP (0)
                     passOp:                         VkStencilOp = VK_STENCIL_OP_KEEP (0)
                     depthFailOp:                    VkStencilOp = VK_STENCIL_OP_KEEP (0)
@@ -181,7 +204,7 @@ vkCreateGraphicsPipelines(device, pipelineCache, createInfoCount, pCreateInfos, 
                     compareMask:                    uint32_t = 0
                     writeMask:                      uint32_t = 0
                     reference:                      uint32_t = 0
-                back:                           VkStencilOpState = 0000006E2FD0E464:
+                back:                           VkStencilOpState = 00000083DADCE944:
                     failOp:                         VkStencilOp = VK_STENCIL_OP_KEEP (0)
                     passOp:                         VkStencilOp = VK_STENCIL_OP_KEEP (0)
                     depthFailOp:                    VkStencilOp = VK_STENCIL_OP_KEEP (0)
@@ -191,15 +214,15 @@ vkCreateGraphicsPipelines(device, pipelineCache, createInfoCount, pCreateInfos, 
                     reference:                      uint32_t = 0
                 minDepthBounds:                 float = 0
                 maxDepthBounds:                 float = 0
-            pColorBlendState:               const VkPipelineColorBlendStateCreateInfo* = 0000006E2FD0E4E8:
+            pColorBlendState:               const VkPipelineColorBlendStateCreateInfo* = 00000083DADCE9C8:
                 sType:                          VkStructureType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO (26)
                 pNext:                          const void* = NULL
                 flags:                          VkPipelineColorBlendStateCreateFlags = 0
                 logicOpEnable:                  VkBool32 = 0
                 logicOp:                        VkLogicOp = VK_LOGIC_OP_COPY (3)
                 attachmentCount:                uint32_t = 1
-                pAttachments:                   const VkPipelineColorBlendAttachmentState* = 0000006E2FD0E4A8
-                    pAttachments[0]:                const VkPipelineColorBlendAttachmentState = 0000006E2FD0E4A8:
+                pAttachments:                   const VkPipelineColorBlendAttachmentState* = 00000083DADCE988
+                    pAttachments[0]:                const VkPipelineColorBlendAttachmentState = 00000083DADCE988:
                         blendEnable:                    VkBool32 = 0
                         srcColorBlendFactor:            VkBlendFactor = VK_BLEND_FACTOR_ZERO (0)
                         dstColorBlendFactor:            VkBlendFactor = VK_BLEND_FACTOR_ZERO (0)
@@ -208,17 +231,17 @@ vkCreateGraphicsPipelines(device, pipelineCache, createInfoCount, pCreateInfos, 
                         dstAlphaBlendFactor:            VkBlendFactor = VK_BLEND_FACTOR_ZERO (0)
                         alphaBlendOp:                   VkBlendOp = VK_BLEND_OP_ADD (0)
                         colorWriteMask:                 VkColorComponentFlags = 15 (VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT)
-                blendConstants:                 float[4] = 0000006E2FD0E510
+                blendConstants:                 float[4] = 00000083DADCE9F0
                     blendConstants[0]:              float = 0
                     blendConstants[1]:              float = 0
                     blendConstants[2]:              float = 0
                     blendConstants[3]:              float = 0
             pDynamicState:                  const VkPipelineDynamicStateCreateInfo* = NULL
-            layout:                         VkPipelineLayout = 967DD1000000000E
-            renderPass:                     VkRenderPass = CAD092000000000D
+            layout:                         VkPipelineLayout = 9FDE6B0000000014
+            renderPass:                     VkRenderPass = D5B26F0000000010
             subpass:                        uint32_t = 0
             basePipelineHandle:             VkPipeline = 0000000000000000
             basePipelineIndex:              int32_t = 0
     pAllocator:                     const VkAllocationCallbacks* = NULL
-    pPipelines:                     VkPipeline* = 0000006E2FD0F108
-        pPipelines[0]:                  VkPipeline = 980F360000000011
+    pPipelines:                     VkPipeline* = 00000083DADCF5E8
+        pPipelines[0]:                  VkPipeline = 84C0580000000017
