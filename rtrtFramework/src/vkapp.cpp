@@ -55,7 +55,13 @@ VkApp::VkApp(App* _app) : app(_app)
     initGUI();
     #endif
     
-    // myloadModel("models/living_room/living_room.obj", glm::mat4(1.0));
+    //myloadModel("models/living_room/living_room.obj", glm::mat4(1.0));
+    // 
+    // app->mycamera.reset
+    // nonrtmb = .2
+    // nonrtlight = 1.0
+    // nonrtLightPos = vec3
+    // 
     // createMatrixBuffer();
     // createObjDescriptionBuffer();
     
