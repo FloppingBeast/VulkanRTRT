@@ -2,7 +2,7 @@
  * file:   vkapp_scanline.cpp
  * author: lawrence.winters (lawrence.winters@digipen.edu)
  * date:   June 15, 2024
- * Copyright © 2023 DigiPen (USA) Corporation.
+ * Copyright © 2024 DigiPen (USA) Corporation.
  *
  * brief:  Scanline functions 
  *********************************************************************/

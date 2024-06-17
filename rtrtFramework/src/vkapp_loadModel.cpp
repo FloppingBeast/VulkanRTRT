@@ -57,10 +57,17 @@ VkDeviceAddress getBufferDeviceAddress(VkDevice device, VkBuffer buffer) {
     return vkGetBufferDeviceAddress(device, &info);
 }
 
+/*********************************************************************
+ * param:  filename, specified file to read from
+ * param:  transform, mat4 used when specifying the instance transform
+ *
+ *
+ * brief:  Loads a model from the passed in filename
+ **********************************************************************/
 void VkApp::myloadModel(const std::string& filename, glm::mat4 transform)
 {
     ModelData meshdata;
-    meshdata.readAssimpFile(filename.c_str(), glm::mat4());
+    meshdata.readAssimpFile(filename.c_str(), glm::mat4(1.0f));
 
     printf("vertices: %zd\n", meshdata.vertices.size());
     printf("indices: %zd (%zd)\n", meshdata.indices.size(), meshdata.indices.size()/3);

@@ -2,7 +2,7 @@
  * file:   vkapp_fns.cpp
  * author: lawrence.winters (lawrence.winters@digipen.edu)
  * date:   June 1, 2024
- * Copyright © 2023 DigiPen (USA) Corporation. 
+ * Copyright © 2024 DigiPen (USA) Corporation. 
  * 
  * brief:  Holds all of the functions related to the vulkan function calls
  *********************************************************************/
@@ -1151,8 +1151,8 @@ void VkApp::postProcess()
             / static_cast<float>(windowSize.height);
         vkCmdBindPipeline(m_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_postPipeline);
         // Eventually uncomment this
-        //vkCmdBindDescriptorSets(m_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-        //                        m_postPipelineLayout, 0, 1, &m_postDesc.descSet, 0, nullptr);
+        vkCmdBindDescriptorSets(m_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                m_postPipelineLayout, 0, 1, &m_postDesc.descSet, 0, nullptr);
 
         // Weird! This draws 3 vertices but with no vertices/triangles buffers bound in.
         // Hint: The vertex shader fabricates vertices from gl_VertexIndex
