@@ -47,20 +47,20 @@ VkApp::VkApp(App* _app) : app(_app)
     createPostRenderPass();		// -> m_postRenderPass
     createPostFrameBuffers();	// -> m_framebuffers
 
-    // createScBuffer();		// -> m_scImageBuffer
-    // createPostDescriptor();		// -> m_postDesc
-    createPostPipeline();  // -> m_postPipelineLayout
+    createScBuffer();		    // -> m_scImageBuffer
+    createPostDescriptor(); // -> m_postDesc
+    createPostPipeline();   // -> m_postPipelineLayout
 
     #ifdef GUI
     initGUI();
     #endif
     
-    //myloadModel("models/living_room/living_room.obj", glm::mat4(1.0));
-    // 
-    // app->mycamera.reset
-    // nonrtmb = .2
-    // nonrtlight = 1.0
-    // nonrtLightPos = vec3
+    // myloadModel("models/living_room/living_room.obj", glm::mat4(1.0));
+     
+    app->myCamera.reset(glm::vec3(2.28, 1.68, 6.64), 0.7, -20.0, 10.66, 0.57, 0.1, 1000.0);
+    nonrtLightAmbient = 0.2;
+    nonrtLightIntensity = 1.0f;
+    nonrtLightPosition = vec3(0.5f, 2.5f, 3.0f);
     // 
     // createMatrixBuffer();
     // createObjDescriptionBuffer();

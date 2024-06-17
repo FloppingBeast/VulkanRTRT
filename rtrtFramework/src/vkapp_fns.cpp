@@ -36,6 +36,12 @@ void VkApp::destroyAllVulkanResources()
 
     // Destroy all vulkan objects.
     // ...  All objects created on m_device must be destroyed before m_device.
+
+    // Project 2 Destroy
+    m_postDesc.destroy(m_device);
+    m_scImageBuffer.destroy(m_device);
+
+    // Project 1 Destroy
     vkDestroyPipelineLayout(m_device, m_postPipelineLayout, nullptr);
     vkDestroyPipeline(m_device, m_postPipeline, nullptr);
 
@@ -968,11 +974,8 @@ void VkApp::createPostPipeline()
 
 
     // @@ What we eventually want:
-    //createInfo.setLayoutCount         = 1;
-    //createInfo.pSetLayouts            = &m_postDesc.descSetLayout;
-    // What we can do for now:
-    createInfo.setLayoutCount         = 0;
-    createInfo.pSetLayouts            = nullptr;
+    createInfo.setLayoutCount         = 1;
+    createInfo.pSetLayouts            = &m_postDesc.descSetLayout;
     
     createInfo.pushConstantRangeCount = 0;
     createInfo.pPushConstantRanges    = nullptr;

@@ -1,3 +1,11 @@
+/*********************************************************************
+ * file:   vkapp_scanline.cpp
+ * author: lawrence.winters (lawrence.winters@digipen.edu)
+ * date:   June 15, 2024
+ * Copyright © 2023 DigiPen (USA) Corporation.
+ *
+ * brief:  Scanline functions 
+ *********************************************************************/
 
 #include <iostream>
 #include <fstream>
@@ -381,6 +389,11 @@ VkSampler VkApp::createTextureSampler()
     return textureSampler;
 }
 
+/*********************************************************************
+ *
+ *
+ * brief:  Creates Post Descriptor set
+ **********************************************************************/
 void VkApp::createPostDescriptor()
 {
     m_postDesc.setBindings(m_device, {
@@ -388,9 +401,14 @@ void VkApp::createPostDescriptor()
         });
     m_postDesc.write(m_device, 0, m_scImageBuffer.Descriptor());
 
-    // @@ Destroy with m_postDesc.destroy(m_device);
+    // @@ Destroy with m_postDesc.destroy(m_device); (DONE)
 }
 
+/*********************************************************************
+ *
+ *
+ * brief:  Creates and submits the scanline buffer
+ **********************************************************************/
 void VkApp::createScBuffer()
 {
     m_scImageBuffer = createBufferImage(windowSize);
@@ -400,7 +418,7 @@ void VkApp::createScBuffer()
                        VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
     submitTempCmdBuffer(cmdBuf);
     
-    // @@ Destroy with m_scImageBuffer.destroy(m_device);
+    // @@ Destroy with m_scImageBuffer.destroy(m_device); (DONE)
 }
 
 ImageWrap VkApp::createBufferImage(VkExtent2D& size)
