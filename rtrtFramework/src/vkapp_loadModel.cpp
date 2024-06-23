@@ -145,7 +145,6 @@ void VkApp::myloadModel(const std::string& filename, glm::mat4 transform)
       Material material = meshdata.materials[meshdata.matIndx[i]];
       m_lightList[i] = std::pair(vertices, material);
     }
-
     
     ObjData object;
     object.nbIndices  = static_cast<uint32_t>(meshdata.indices.size());

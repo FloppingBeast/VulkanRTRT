@@ -55,7 +55,7 @@ VkApp::VkApp(App* _app) : app(_app)
     initGUI();
     #endif
     
-    myloadModel("models/living_room/living_room.obj", glm::mat4(1.0));
+    myloadModel("models/living_room/living_room.obj", glm::mat4(1.0f));
      
     app->myCamera.reset(glm::vec3(2.28, 1.68, 6.64), 0.7, -20.0, 10.66, 0.57, 0.1, 1000.0);
     nonrtLightAmbient = 0.2;
@@ -92,14 +92,14 @@ void VkApp::drawFrame()
     beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
     vkBeginCommandBuffer(m_commandBuffer, &beginInfo);
     {   // Extra indent for code clarity
-        // updateCameraBuffer();
+        updateCameraBuffer();
         
         // Draw scene
         // if (useRaytracer) {
         //     raytrace();`
         //     denoise(); }
         // else {
-        //     rasterize(); }
+             rasterize(); // }
         
         postProcess(); //  tone mapper and output to swapchain image.
         
