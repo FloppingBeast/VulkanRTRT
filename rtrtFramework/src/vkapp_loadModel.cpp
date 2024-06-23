@@ -192,11 +192,11 @@ void VkApp::myloadModel(const std::string& filename, glm::mat4 transform)
     m_objDesc.emplace_back(desc);
 
     // @@ At shutdown:
-    //   Destroy all textures with:  for (t:m_objText) t.destroy(m_device); 
+    //   Destroy all textures with:  for (t:m_objText) t.destroy(m_device); (DONE)
     // Destroy the 4 buffers containing each object's data with:
     // for (auto& ob : m_objData) {
     // ob.vertexBuffer.destroy(m_device); 
-    // and similar for ob.indexBuffer, ob.matColorBuffer, ob.matIndexBuffer ... }
+    // and similar for ob.indexBuffer, ob.matColorBuffer, ob.matIndexBuffer ... } (DONE)
 }
 
 void ModelData::readAssimpFile(const std::string& path, const mat4& M)

@@ -38,6 +38,15 @@ void VkApp::destroyAllVulkanResources()
     // ...  All objects created on m_device must be destroyed before m_device.
 
     // Project 2 Destroy
+    vkDestroyPipelineLayout(m_device, m_scanlinePipelineLayout, nullptr);
+    vkDestroyPipeline(m_device, m_scanlinePipeline, nullptr);
+    m_scDesc.destroy(m_device);
+    vkDestroyRenderPass(m_device, m_scanlineRenderPass, nullptr);
+    vkDestroyFramebuffer(m_device, m_scanlineFramebuffer, nullptr);
+
+    m_objDescriptionBW.destroy(m_device);
+    m_matrixBW.destroy(m_device);
+
     for (auto& ob : m_objData) 
     {
       ob.vertexBuffer.destroy(m_device); 

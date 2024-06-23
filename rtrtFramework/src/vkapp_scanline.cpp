@@ -441,7 +441,11 @@ ImageWrap VkApp::createBufferImage(VkExtent2D& size)
     return myImage;
 }
 
-// The scanline renderpass outputs to m_scImageBuffer (as wrapped by m_scanlineFramebuffer)
+/*********************************************************************
+ *
+ *
+ * brief:  The scanline renderpass outputs to m_scImageBuffer (as wrapped by m_scanlineFramebuffer)S
+ **********************************************************************/
 void VkApp::createScanlineRenderPass()
 {
     VkAttachmentDescription colorAttachment{};
@@ -514,10 +518,15 @@ void VkApp::createScanlineRenderPass()
     info.layers          = 1;
     vkCreateFramebuffer(m_device, &info, nullptr, &m_scanlineFramebuffer);
 
-    // @@ Destroy with vkDestroyRenderPass(m_device, m_scanlineRenderPass, nullptr);
-    // @@ Destroy with vkDestroyFramebuffer(m_device, m_scanlineFramebuffer, nullptr);
+    // @@ Destroy with vkDestroyRenderPass(m_device, m_scanlineRenderPass, nullptr); (DONE)
+    // @@ Destroy with vkDestroyFramebuffer(m_device, m_scanlineFramebuffer, nullptr); (DONE)
 }
 
+/*********************************************************************
+ *
+ *
+ * brief:  Creates a descriptor set for the scanline and raytracing pipelines
+ **********************************************************************/
 void VkApp::createScDescriptorSet()
 {
     auto nbTxt = static_cast<uint32_t>(m_objText.size());
@@ -539,9 +548,14 @@ void VkApp::createScDescriptorSet()
     m_scDesc.write(m_device, ScBindings::eObjDescs, m_objDescriptionBW.buffer);
     m_scDesc.write(m_device, ScBindings::eTextures, m_objText);    
 
-    // @@ Destroy with m_scDesc.destroy(m_device);
+    // @@ Destroy with m_scDesc.destroy(m_device); (DONE)
 }
 
+/*********************************************************************
+ *
+ *
+ * brief:  Create the layout and pipeline for scanline
+ **********************************************************************/
 void VkApp::createScPipeline()
 {
     VkPushConstantRange pushConstantRanges = {
@@ -675,12 +689,17 @@ void VkApp::createScPipeline()
     vkDestroyShaderModule(m_device, fragShaderModule, nullptr);
     vkDestroyShaderModule(m_device, vertShaderModule, nullptr);
     
-    // @@ To destroy:  vkDestroyPipelineLayout(m_device, m_scanlinePipelineLayout, nullptr);
-    // @@  and:        vkDestroyPipeline(m_device, m_scanlinePipeline, nullptr);
+    // @@ To destroy:  vkDestroyPipelineLayout(m_device, m_scanlinePipelineLayout, nullptr); (DONE)
+    // @@  and:        vkDestroyPipeline(m_device, m_scanlinePipeline, nullptr); (DONE)
 }
 
-// Create a Vulkan buffer to hold the camera matrices, products and inverses.
-// Will be included in a descriptor set for use in shaders.
+
+/*********************************************************************
+ *
+ *
+ * brief:  Create a Vulkan buffer to hold the camera matrices, products and inverses. 
+ *         Will be included in a descriptor set for use in shaders.
+ **********************************************************************/
 void VkApp::createMatrixBuffer()
 {
     m_matrixBW = createBufferWrap(sizeof(MatrixUniforms),
@@ -688,19 +707,23 @@ void VkApp::createMatrixBuffer()
                                | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
                                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-    // @@ Destroy with m_matrixBW.destroy(m_device);
+    // @@ Destroy with m_matrixBW.destroy(m_device); (DONE)
 }
 
-// Create a Vulkan buffer containing pointers to all object buffers
-// (vertex, triangle indices, materials, and material indices. Will be
-// included in a descriptor set for use in shaders.
+/*********************************************************************
+ *
+ *
+ * brief:  Create a Vulkan buffer containing pointers to all object buffers 
+ *         (vertex, triangle indices, materials, and material indices. Will be 
+ *         included in a descriptor set for use in shaders.
+ **********************************************************************/
 void VkApp::createObjDescriptionBuffer()
 {
     VkCommandBuffer cmdBuf = createTempCmdBuffer();
     m_objDescriptionBW  = createStagedBufferWrap(cmdBuf, m_objDesc,
                                                  VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
     submitTempCmdBuffer(cmdBuf);
-    // @@ Destroy with m_objDescriptionBW.destroy(m_device);
+    // @@ Destroy with m_objDescriptionBW.destroy(m_device); (DONE)
 }
 
 void VkApp::rasterize()

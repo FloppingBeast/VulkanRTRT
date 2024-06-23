@@ -61,13 +61,13 @@ VkApp::VkApp(App* _app) : app(_app)
     nonrtLightAmbient = 0.2;
     nonrtLightIntensity = 1.0f;
     nonrtLightPosition = vec3(0.5f, 2.5f, 3.0f);
-    // 
-    // createMatrixBuffer();
-    // createObjDescriptionBuffer();
     
-    // createScanlineRenderPass();
-    // createScDescriptorSet();
-    // createScPipeline();
+    createMatrixBuffer();
+    createObjDescriptionBuffer();
+    
+    createScanlineRenderPass();
+    createScDescriptorSet();
+    createScPipeline();
 
     // @@ Raycasting ...: Initialize ray tracing capabilities
     // createRtBuffers();
