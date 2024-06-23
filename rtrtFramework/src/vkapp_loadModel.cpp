@@ -116,23 +116,36 @@ void VkApp::myloadModel(const std::string& filename, glm::mat4 transform)
     meshdata.materials.push_back({Z, Z, Sky, 0.0, -1});
     meshdata.matIndx.push_back(Nm);                       
     meshdata.matIndx.push_back(Nm);                             
-#endif
     
     printf("vertices: %zd\n", meshdata.vertices.size());
     printf("indices: %zd (%zd)\n", meshdata.indices.size(), meshdata.indices.size()/3);
     printf("materials: %zd\n", meshdata.materials.size());
     printf("matIndx: %zd\n", meshdata.matIndx.size());
     printf("textures: %zd\n", meshdata.textures.size());
+
+#endif
     
 
     // @@ The raytracer will eventually need a list of lights, that is
     // a list of triangle indices whose associated material type has a
     // non-zero emission vec3.  Create such a list.  The vkapp.h header
-    // file has no data member for this, so create your own.
+    // file has no data member for this, so create your own. (DONE)
     //
     // Hint: The triangle at index i has:
     //   vertices in meshdata.vertices, indexed by [3*i], [3*i+1], [3*i+2]
     //   and a material in meshdata.materials, indexed by meshdata.matIndx[i]
+    uint32_t indices = meshdata.vertices.size() / 3;
+    m_lightList.resize(indices);
+    for (uint32_t i = 0; i < indices; ++i)
+    {
+      std::vector<Vertex> vertices(3);
+      vertices[0] = meshdata.vertices[3 * i];
+      vertices[1] = meshdata.vertices[3 * i + 1];
+      vertices[2] = meshdata.vertices[3 * i + 2];
+      Material material = meshdata.materials[meshdata.matIndx[i]];
+      m_lightList[i] = std::pair(vertices, material);
+    }
+
     
     ObjData object;
     object.nbIndices  = static_cast<uint32_t>(meshdata.indices.size());

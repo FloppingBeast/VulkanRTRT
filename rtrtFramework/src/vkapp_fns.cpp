@@ -38,6 +38,21 @@ void VkApp::destroyAllVulkanResources()
     // ...  All objects created on m_device must be destroyed before m_device.
 
     // Project 2 Destroy
+    for (auto& ob : m_objData) 
+    {
+      ob.vertexBuffer.destroy(m_device); 
+      ob.matIndexBuffer.destroy(m_device);
+      ob.matColorBuffer.destroy(m_device);
+      ob.indexBuffer.destroy(m_device);
+    }
+
+    // and similar for ob.indexBuffer, ob.matColorBuffer, ob.matIndexBuffer ... }
+
+    for (auto& tex : m_objText) 
+    {
+      tex.destroy(m_device);
+    }
+
     m_postDesc.destroy(m_device);
     m_scImageBuffer.destroy(m_device);
 
