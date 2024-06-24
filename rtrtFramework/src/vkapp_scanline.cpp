@@ -20,6 +20,7 @@
 #define GLM_FORCE_RADIANS
 #define GLM_SWIZZLE
 #include <glm/glm.hpp>
+#include <glm/ext.hpp>
 using namespace glm;
 
 #define STBI_FAILURE_USERMSG
@@ -785,6 +786,10 @@ void VkApp::updateCameraBuffer()
     m_priorViewProj       = hostUBO.viewProj;
     hostUBO.viewInverse = glm::inverse(view);
     hostUBO.projInverse = glm::inverse(proj);
+
+    /*std::cout << std::endl << "size: " << sizeof(hostUBO) << std::endl;
+    std::cout << "view: " << glm::to_string(view) << std::endl;
+    std::cout << "proj: " << glm::to_string(proj) << std::endl;*/
 
     // UBO on the device, and what stages access it.
     VkBuffer deviceUBO      = m_matrixBW.buffer;
