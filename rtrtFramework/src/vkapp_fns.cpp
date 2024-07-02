@@ -41,6 +41,16 @@ void VkApp::destroyAllVulkanResources()
     // Destroy all vulkan objects.
     // ...  All objects created on m_device must be destroyed before m_device.
 
+    // Project 3 Destroy
+    m_shaderBindingTableBW.destroy(m_device);
+
+    vkDestroyPipelineLayout(m_device, m_rtPipelineLayout, nullptr);
+    vkDestroyPipeline(m_device, m_rtPipeline, nullptr);
+
+    m_rtDesc.destroy(m_device);
+    m_rtBuilder.destroy();
+    m_rtColCurrBuffer.destroy(m_device);
+
     // Project 2 Destroy
     vkDestroyPipelineLayout(m_device, m_scanlinePipelineLayout, nullptr);
     vkDestroyPipeline(m_device, m_scanlinePipeline, nullptr);
@@ -58,8 +68,6 @@ void VkApp::destroyAllVulkanResources()
       ob.matColorBuffer.destroy(m_device);
       ob.indexBuffer.destroy(m_device);
     }
-
-    // and similar for ob.indexBuffer, ob.matColorBuffer, ob.matIndexBuffer ... }
 
     for (auto& tex : m_objText) 
     {

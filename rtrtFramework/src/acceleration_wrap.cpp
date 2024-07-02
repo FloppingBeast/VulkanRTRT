@@ -1,3 +1,11 @@
+/*********************************************************************
+ * file:   acceleration_wrap.cpp
+ * author: lawrence.winters (lawrence.winters@digipen.edu)
+ * date:   July 2, 2024
+ * Copyright © 2024 DigiPen (USA) Corporation.
+ *
+ * brief: Houses functions for Acceleration Struction creation, deletion, etc.
+ *********************************************************************/
 
 #include "acceleration_wrap.h"
 #include "vkapp.h"
@@ -525,6 +533,12 @@ BlasInput VkApp::objectToVkGeometryKHR(const ObjData& model)
     return input;
 }
 
+/*********************************************************************
+ *
+ *
+ * brief:  Creates the raytracing acceleration structure. Bottom level and
+ *         top level
+ **********************************************************************/
 void VkApp::createRtAccelerationStructure()
 {
     printf("\nVkApp::createRtAccelerationStructure\n");
@@ -539,7 +553,7 @@ void VkApp::createRtAccelerationStructure()
 
     m_rtBuilder.buildBlas(allBlas, VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR);
 
-    // TLAS
+    // TLAS (Top-Level Acceleration Structure)
     printf("  Create a TLAS vector to hold each BLAS and it's transformation\n");
     std::vector<VkAccelerationStructureInstanceKHR> tlas;
     tlas.reserve(m_objInst.size());

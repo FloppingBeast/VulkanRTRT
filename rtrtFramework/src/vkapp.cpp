@@ -70,12 +70,12 @@ VkApp::VkApp(App* _app) : app(_app)
     createScPipeline();
 
     // @@ Raycasting ...: Initialize ray tracing capabilities
-    // createRtBuffers();
-    // initRayTracing();
-    // createRtAccelerationStructure();
-    // createRtDescriptorSet();
-    // createRtPipeline();
-    // createRtShaderBindingTable();
+    createRtBuffers();
+    initRayTracing();
+    createRtAccelerationStructure();
+    createRtDescriptorSet();
+    createRtPipeline();
+    createRtShaderBindingTable();
 
     // @@ Denoising: Initialize denoising capabilities
     // createDenoiseBuffer();

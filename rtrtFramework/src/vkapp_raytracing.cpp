@@ -1,3 +1,11 @@
+/*********************************************************************
+ * file:   vkapp_raytracing.cpp
+ * author: lawrence.winters (lawrence.winters@digipen.edu)
+ * date:   July 2, 2024
+ * Copyright © 2024 DigiPen (USA) Corporation.
+ *
+ * brief: File houses the functions used for ray tracing
+ *********************************************************************/
 
 #include <iostream>
 #include <fstream>
@@ -16,7 +24,11 @@ using namespace glm;
 #include "app.h"
 #include "shaders/shared_structs.h"
 
-
+/*********************************************************************
+ *
+ *
+ * brief:  Create raytraced buffer image
+ **********************************************************************/
 void VkApp::createRtBuffers()
 {
     // Note: This will grow to create more than the single buffer m_rtColCurrBuffer.
@@ -25,11 +37,14 @@ void VkApp::createRtBuffers()
                           VK_IMAGE_LAYOUT_UNDEFINED,
                           VK_IMAGE_LAYOUT_GENERAL, 1);
 
-    // @@ Destroy whatever buffers were created.
-
+    // @@ Destroy whatever buffers were created. (DONE)
 }
 
-// Initialize ray tracing
+/*********************************************************************
+ *
+ *
+ * brief:  Initialize ray tracing
+ **********************************************************************/
 void VkApp::initRayTracing()
 {
     m_pcRay.exposure = 2.0;
@@ -48,7 +63,7 @@ void VkApp::initRayTracing()
     // This initializes the acceleration structure helper class
     m_rtBuilder.setup(this, m_device, m_graphicsQueueIndex);
 
-    // @@ Destroy the acceleration structure with m_rtBuilder.destroy()
+    // @@ Destroy the acceleration structure with m_rtBuilder.destroy() (DONE)
 
     // There is some question whether this destroy can go here (since
     // the structure has finished it's job of building the
@@ -58,9 +73,11 @@ void VkApp::initRayTracing()
     // m_rtBuilder.destroy();
 }
 
-//-------------------------------------------------------------------------------------------------
-// This descriptor set holds the Acceleration structure and the output image
-//
+/*********************************************************************
+ *
+ *
+ * brief:  This descriptor set holds the Acceleration structure and the output image
+ **********************************************************************/
 void VkApp::createRtDescriptorSet()
 {
     m_rtDesc.setBindings(m_device, {
@@ -75,10 +92,15 @@ void VkApp::createRtDescriptorSet()
 
     m_rtDesc.write(m_device, 0, m_rtBuilder.getAccelerationStructure());
     m_rtDesc.write(m_device, 1, m_rtColCurrBuffer.Descriptor());
+
+    // m_rtDesc needs to be destroyed
 }
 
-// Pipeline for the ray tracer: all shaders, raygen, chit, miss
-//
+/*********************************************************************
+ *
+ *
+ * brief: Pipeline for the ray tracer: all shaders, raygen, chit, miss 
+ **********************************************************************/
 void VkApp::createRtPipeline()
 {
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -169,7 +191,7 @@ void VkApp::createRtPipeline()
     for (auto& s : stages)
         vkDestroyShaderModule(m_device, s.module, nullptr);
 
-    // @@ Destroy pipeline and its layout with
+    // @@ Destroy pipeline and its layout with (DONE)
     //   vkDestroyPipelineLayout(m_device, m_rtPipelineLayout, nullptr);
     //   vkDestroyPipeline(m_device, m_rtPipeline, nullptr);
 }
@@ -184,6 +206,11 @@ constexpr integral align_up(integral x, size_t a) noexcept
     return integral((x + (integral(a) - 1)) & ~integral(a - 1));
 }
 
+/*********************************************************************
+ *
+ *
+ * brief:  Create table used to bind raytracing shaders
+ **********************************************************************/
 void VkApp::createRtShaderBindingTable()
 {
     uint32_t missCount{1};
@@ -279,7 +306,7 @@ void VkApp::createRtShaderBindingTable()
 
     staging.destroy(m_device);
 
-    // @@ destroy acceleration structure with m_shaderBindingTableBW.destroy(m_device);
+    // @@ destroy acceleration structure with m_shaderBindingTableBW.destroy(m_device); (DONE)
 }
 
 void VkApp::CmdCopyImage(ImageWrap& src, ImageWrap& dst)
