@@ -45,6 +45,9 @@
     <ClCompile Include="vkapp_denoise.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\libs\imgui-master\imgui_demo.cpp">
+      <Filter>ImGui Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source Files">

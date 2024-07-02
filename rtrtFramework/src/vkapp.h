@@ -7,7 +7,7 @@
 
 // Imgui
 // This can be defined only after some of the Vulkan initialization is complete.
-#undef GUI
+#define GUI
 
 //#define SANM
 
@@ -260,7 +260,7 @@ public:
                             VkImageLayout newImageLayout,
                             VkImageAspectFlags aspectMask=VK_IMAGE_ASPECT_COLOR_BIT);
     // Run loop 
-    bool useRaytracer = true;
+    bool useRaytracer = false;
     void prepareFrame();
     void ResetRtAccumulation();
     

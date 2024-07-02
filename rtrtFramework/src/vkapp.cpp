@@ -86,27 +86,31 @@ VkApp::VkApp(App* _app) : app(_app)
 
 void VkApp::drawFrame()
 {
-    prepareFrame();
-    
-    VkCommandBufferBeginInfo beginInfo{VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
-    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-    vkBeginCommandBuffer(m_commandBuffer, &beginInfo);
-    {   // Extra indent for code clarity
-        updateCameraBuffer();
-        
-        // Draw scene
-        // if (useRaytracer) {
-        //     raytrace();`
-        //     denoise(); }
-        // else {
-             rasterize(); // }
-        
-        postProcess(); //  tone mapper and output to swapchain image.
-        
-    }   // Done recording;  Execute!
-    
-    vkEndCommandBuffer(m_commandBuffer);
-    submitFrame();  // Submit for display
+  prepareFrame();
+
+  VkCommandBufferBeginInfo beginInfo{ VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+  beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+  vkBeginCommandBuffer(m_commandBuffer, &beginInfo);
+  {   // Extra indent for code clarity
+    updateCameraBuffer();
+
+    // Draw scene
+    if (useRaytracer)
+    {
+      raytrace();
+      //     denoise(); }
+    }
+    else
+    {
+      rasterize();
+    }
+
+    postProcess(); //  tone mapper and output to swapchain image.
+
+  }   // Done recording;  Execute!
+
+  vkEndCommandBuffer(m_commandBuffer);
+  submitFrame();  // Submit for display
 }
 
 

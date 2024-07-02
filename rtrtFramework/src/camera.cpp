@@ -39,7 +39,7 @@ glm::mat4 Camera::perspective(const float aspect)
     float rx = ry*aspect;
     P[0][0] = 1.0/rx;
     P[1][1] = -1.0/ry; // Because Vulkan does y upside-down.
-    P[2][2] = -back/(back-front);  // Becasue Vulkan wants [front,back] mapped to [0,1]
+    P[2][2] = -back/(back-front);  // Because Vulkan wants [front,back] mapped to [0,1]
     P[3][2] = -(front*back)/(back-front);
     P[2][3] = -1;
     P[3][3] = 0;

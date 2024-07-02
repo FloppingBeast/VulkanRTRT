@@ -34,6 +34,10 @@ void VkApp::destroyAllVulkanResources()
     // @@
     vkDeviceWaitIdle(m_device);  // Uncomment this when you have an m_device created.
 
+    // Destroy ImGUI
+    vkDestroyDescriptorPool(m_device, m_imguiDescPool, nullptr);
+    ImGui_ImplVulkan_Shutdown();
+
     // Destroy all vulkan objects.
     // ...  All objects created on m_device must be destroyed before m_device.
 
