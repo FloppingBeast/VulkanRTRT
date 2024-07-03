@@ -1,3 +1,11 @@
+/*********************************************************************
+ * file:   app.cpp
+ * author: lawrence.winters (lawrence.winters@digipen.edu)
+ * date:   July 2, 2024
+ * Copyright © 2024 DigiPen (USA) Corporation.
+ *
+ * brief: Main and GUI functions here
+ *********************************************************************/
 #include <iostream>
 #include <array>
 

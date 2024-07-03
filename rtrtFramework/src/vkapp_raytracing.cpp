@@ -340,12 +340,12 @@ void VkApp::CmdCopyImage(ImageWrap& src, ImageWrap& dst)
 void VkApp::raytrace()
 {
     // Fill the push constant structure for the ray tracing pipeline.
-    // @@ Raycasting: Define and fill 3 temporary light values.
+    // @@ Raycasting: Define and fill 3 temporary light values. (DONE)
     // @@ Pathtracing: Remove these because path tracing finds emitters defined in the model.
     // These values define a light near the ceiling of the living room model.
-    // m_pcRay.tempLightPos = vec4(nonrtLightPosition, 0.0);
-    // m_pcRay.tempLightInt = vec4(nonrtLightIntensity);
-    // m_pcRay.tempAmbient = vec4(nonrtLightAmbient);
+    m_pcRay.tempLightPos = vec4(nonrtLightPosition, 0.0);
+    m_pcRay.tempLightInt = vec4(nonrtLightIntensity);
+    m_pcRay.tempAmbient = vec4(nonrtLightAmbient);
     m_pcRay.alignmentTest = 1234;
 
     // Bind the ray tracing pipeline

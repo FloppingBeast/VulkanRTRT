@@ -1,4 +1,11 @@
-
+/*********************************************************************
+ * file:   shared_structs.h
+ * author: lawrence.winters (lawrence.winters@digipen.edu)
+ * date:   July 2, 2024
+ * Copyright © 2024 DigiPen (USA) Corporation.
+ *
+ * brief: Structures that are shared between shaders and .cpp files
+ *********************************************************************/
 #ifndef COMMON_HOST_DEVICE
 #define COMMON_HOST_DEVICE
 
@@ -95,15 +102,15 @@ struct PushConstantRaster
 // Push constant structure for the ray tracer
 struct PushConstantRay
 {
-    // @@ Raycasting: Declare 3 temporary light values.  
-    // @@ Pathtracing: Remove these 3 values because path tracing finds light by tracing rays.
-    // ALIGNAS(16) vec4 tempLightPos;
-    // ALIGNAS(16) vec4 tempLightInt;
-    // ALIGNAS(16) vec4 tempAmbient;
-    ALIGNAS(4) bool clear;  // Tell the ray generation shader to start accumulation from scratch
-    ALIGNAS(4) float exposure;
-    // @@ Set alignmentTest to a known value in C++;  Test for that value in the shader!
-    ALIGNAS(4) int alignmentTest;
+  // @@ Raycasting: Declare 3 temporary light values. (DONE) 
+  // @@ Pathtracing: Remove these 3 values because path tracing finds light by tracing rays.
+  ALIGNAS(16) vec4 tempLightPos;
+  ALIGNAS(16) vec4 tempLightInt;
+  ALIGNAS(16) vec4 tempAmbient;
+  ALIGNAS(4) bool clear;  // Tell the ray generation shader to start accumulation from scratch
+  ALIGNAS(4) float exposure;
+  // @@ Set alignmentTest to a known value in C++;  Test for that value in the shader!
+  ALIGNAS(4) int alignmentTest;
 };
 
 struct Vertex  // Created by readModel; used in shaders

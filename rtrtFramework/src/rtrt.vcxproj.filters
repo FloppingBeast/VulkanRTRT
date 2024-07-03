@@ -86,6 +86,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="acceleration_wrap.h" />
+    <ClInclude Include="shaders\shared_structs.h">
+      <Filter>Shader Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="shaders\post.frag">
