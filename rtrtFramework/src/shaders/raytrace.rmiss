@@ -18,6 +18,6 @@ layout(location=0) rayPayloadInEXT RayPayload payload;
 
 void main()
 {
-    // @@ Raycasting: Just set payload.hit = false
+    // @@ Raycasting: Just set payload.hit = false (DONE)
     payload.hit = false;
 }

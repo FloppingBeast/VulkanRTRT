@@ -220,7 +220,7 @@ void main()
 
         } // End of Monte-Carlo block/loop
 
-    // @@ Raycasting: Write C to the output pixel
+    // @@ Raycasting: Write C to the output pixel (DONE)
     imageStore(colCurr, ivec2(gl_LaunchIDEXT.xy), vec4(C,1.0));
     // @@ Pathtracing: Accumulate C into output pixel.
     // @@ History: Accumulate C with <whatever> and write to the output pixel
