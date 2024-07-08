@@ -260,7 +260,7 @@ public:
                             VkImageLayout newImageLayout,
                             VkImageAspectFlags aspectMask=VK_IMAGE_ASPECT_COLOR_BIT);
     // Run loop 
-    bool useRaytracer = false;
+    bool useRaytracer = true;
     void prepareFrame();
     void ResetRtAccumulation();
     
