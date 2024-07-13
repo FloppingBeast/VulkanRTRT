@@ -9,6 +9,10 @@
 #include <iostream>
 #include <array>
 
+#include <cstdio>
+#include <chrono>
+#include <thread>
+
 #include "vkapp.h"
 #include "app.h"
 #include "extensions_vk.hpp"
@@ -20,7 +24,7 @@ static void onErrorCallback(int error, const char* description)
 }
 
 
-void drawGUI(VkApp& VK)
+void drawGUI(App* app, VkApp& VK)
 {
     
     // @@ Once GUI is defined, you can put some gui elements on the screen
@@ -33,9 +37,18 @@ void drawGUI(VkApp& VK)
     // An example check box:
     ImGui::Checkbox("Ray Trace", &VK.useRaytracer);
 
+    // Accumulate raytrace
+    ImGui::Checkbox("Accumulate", &VK.m_pcRay.accumulate);
+
+    // Clear and repath
+    ImGui::Checkbox("Clear", &(app->myCamera.modified));
+
     // An example slider:
     if (ImGui::SliderFloat("Exposure", &VK.m_pcRay.exposure, 0.5f, 8.0f, "%.5f"))
         VK.m_pcRay.clear = true;
+
+    ImGui::Text("Frame Count: %i", ImGui::GetFrameCount());
+    ImGui::Text("Frame Count: %i", VK.frameCount);
 
 }
 
@@ -46,36 +59,57 @@ static std::string PROJECT = "rtrt";
 
 App* app;  // The app, declared here so static callback functions can find it.
 
+std::chrono::system_clock::time_point a = std::chrono::system_clock::now();
+std::chrono::system_clock::time_point b = std::chrono::system_clock::now();
+double limit = 16.667;
+
 //---------------------------------------------------------------------------------------------
 int main(int argc, char** argv)
 {
-    app =  new App(argc, argv); // Constructs the glfw window and sets UI callbacks
+  app = new App(argc, argv); // Constructs the glfw window and sets UI callbacks
 
-    
-    VkApp VK(app); // Creates and manages all things Vulkan.
 
-    // The draw loop
-    printf("looping =======================================\n");
-    while(!glfwWindowShouldClose(app->GLFW_window)) {
-        glfwPollEvents();
-        app->updateCamera();
-        
-        #ifdef GUI
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-        if(app->m_show_gui)
-            drawGUI(VK);
-        #endif
+  VkApp VK(app); // Creates and manages all things Vulkan.
 
-        VK.drawFrame();
+  // The draw loop
+  printf("looping =======================================\n");
+  while (!glfwWindowShouldClose(app->GLFW_window)) {
+
+    // Maintain designated frequency of 5 Hz (200 ms per frame)
+    /*a = std::chrono::system_clock::now();
+    std::chrono::duration<double, std::milli> work_time = a - b;
+
+    if (work_time.count() < limit)
+    {
+      std::chrono::duration<double, std::milli> delta_ms(limit - work_time.count());
+      auto delta_ms_duration = std::chrono::duration_cast<std::chrono::milliseconds>(delta_ms);
+      std::this_thread::sleep_for(std::chrono::milliseconds(delta_ms_duration.count()));
     }
 
-    // Cleanup
+    b = std::chrono::system_clock::now();
+    std::chrono::duration<double, std::milli> sleep_time = b - a;*/
 
-    VK.destroyAllVulkanResources();
+    // Your code here
 
-    glfwDestroyWindow(app->GLFW_window);
-    glfwTerminate();
+    glfwPollEvents();
+    app->updateCamera();
+
+#ifdef GUI
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+    if (app->m_show_gui)
+      drawGUI(app, VK);
+#endif
+
+    VK.drawFrame();
+  }
+
+  // Cleanup
+
+  VK.destroyAllVulkanResources();
+
+  glfwDestroyWindow(app->GLFW_window);
+  glfwTerminate();
 }
 
 void framebuffersize_cb(GLFWwindow* window, int w, int h)

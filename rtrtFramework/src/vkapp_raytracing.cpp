@@ -48,6 +48,7 @@ void VkApp::createRtBuffers()
 void VkApp::initRayTracing()
 {
     m_pcRay.exposure = 2.0;
+    m_pcRay.accumulate = true;
     
     // Requesting ray tracing properties
     VkPhysicalDeviceProperties2 prop2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2};
@@ -341,11 +342,29 @@ void VkApp::raytrace()
 {
     // Fill the push constant structure for the ray tracing pipeline.
     // @@ Raycasting: Define and fill 3 temporary light values. (DONE)
-    // @@ Pathtracing: Remove these because path tracing finds emitters defined in the model.
+    // @@ Pathtracing: Remove these because path tracing finds emitters defined in the model. (DONE)
     // These values define a light near the ceiling of the living room model.
     m_pcRay.tempLightPos = vec4(nonrtLightPosition, 0.0);
     m_pcRay.tempLightInt = vec4(nonrtLightIntensity);
     m_pcRay.tempAmbient = vec4(nonrtLightAmbient);
+    
+    // Determine frame specific random number
+    m_pcRay.frameSeed = rand() % 32768;
+
+    // Calculate depth of paths
+    m_pcRay.russianRoulette = 0.7f;
+    m_pcRay.depth = 4;
+    /*while ((float(rand()) / RAND_MAX) < m_pcRay.russianRoulette)
+    {
+      ++m_pcRay.depth;
+    }*/
+
+    // Tell if calculated color value should accumulate with previous values or init for future accumulations
+    m_pcRay.clear = app->myCamera.modified;
+    app->myCamera.modified = false;
+
+    if (m_pcRay.clear) frameCount = 1;
+
     m_pcRay.alignmentTest = 1234;
 
     // Bind the ray tracing pipeline
@@ -370,13 +389,14 @@ void VkApp::raytrace()
     // This dispatches the ray generation shader for each pixel on screen.
     vkCmdTraceRaysKHR(m_commandBuffer, &m_rgenRegion, &m_missRegion, &m_hitRegion,
                       &m_callRegion, windowSize.width, windowSize.height, 1);
-    frameCount++;
 
     
     // Copy the ray tracer output image to the scanline output image
     // -- because we already have the operations needed to display
     // that image on the screen.
     CmdCopyImage(m_rtColCurrBuffer, m_scImageBuffer);
+
+    if (m_pcRay.accumulate) frameCount++;
 
     // @@ History and Denoising: The three Curr buffers need copying to the Prev buffers.
     //CmdCopyImage(m_rtColCurrBuffer, m_rtColPrevBuffer);
