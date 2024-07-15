@@ -71,10 +71,39 @@ vec3 EvalBrdf(vec3 N, vec3 L, vec3 V, Material mat)
   return result;
 }
 
-// @@ Pathtracing: Write SampleBrdf, PdfBrdf, ...
-//   vec3 SampleBrdf(inout uint seed, in vec3 N) { }
-//   float PdfLight(float area) { }
-// and more
+// @@ Pathtracing: Write SampleBrdf, PdfBrdf, ...(DONE)
+
+vec3 SampleLobe(vec3 A, float cosAngle, float phi)
+{
+  float s = sqrt(1.0f - (cosAngle * cosAngle));
+
+  // Create vector K centered around Z-axis and rotate to A-axis
+  vec3 K = vec3(s * cos(phi), s * sin(phi), cosAngle);
+
+  if (abs(A.z - 1.0f) < 0.001f) return K;
+  if (abs(A.z + 1.0f) < 0.001f) return vec3(K.x, -K.y, -K.z);
+
+  vec3 B = normalize(vec3(-A.y, A.x, 0.0f));
+  vec3 C = cross(A, B);
+
+  return (K.x * B) + (K.y * C) + (K.z * A); 
+}
+
+vec3 SampleBrdf(inout uint seed, in vec3 N) 
+{
+  return SampleLobe(N, sqrt(rnd(seed)), pi2 * rnd(seed));
+}
+
+//float PdfLight(float area) 
+//{ 
+//}
+
+float PdfBrdf(vec3 N, vec3 Wi)
+{
+  float numerator = dot(N, Wi);
+
+  return abs(numerator) / pi;
+}
 
 // Given a ray's payload indicating a triangle has been hit
 // (payload.instanceIndex, and payload.primitiveIndex),
@@ -116,7 +145,7 @@ void GetHitObjectData(out Material mat, out vec3 nrm)
 void main() 
 {
     // @@ Raycasting: Since the alignment of pcRay is SO easy to get wrong, test it
-    // here and flag problems with a fully red screen.
+    // here and flag problems with a fully red screen. (DONE)
     if (pcRay.alignmentTest != 1234) {
         imageStore(colCurr, ivec2(gl_LaunchIDEXT.xy), vec4(1,0,0,0));
         return; }
@@ -141,88 +170,123 @@ void main()
     // The path tracing algorithm will accumulate a product of f/p weights in W.
     vec3 W = vec3(1,1,1);
     
-    // @@ Pathtracing: Initialize random pixel seed *very* carefully! (See notes.)
-    // payload.seed = tea(gl_LaunchIDEXT.y*gl_LaunchSizeEXT.x + gl_LaunchIDEXT.x, pcRay.frameSeed);
+    // @@ Pathtracing: Initialize random pixel seed *very* carefully! (See notes.) (DONE)
+    payload.seed = tea((gl_LaunchIDEXT.y * gl_LaunchSizeEXT.x) + gl_LaunchIDEXT.x, pcRay.frameSeed);
+
     // @@ History: Initialize first-hit data
     
     // @@ Raycasting: Put all the ray casting code in this loop that's
     // not really a loop since it executes only once.  WHY?  Just
     // looking ahead a bit into the next (path tracing) project. (DONE)
 
-    // @@ Pathtracing: Eventually, this will be the Monte-Carlo loop.
-    for (int i=0; i<1;  i++)
-        {
-        payload.hit = false;
-        // Fire the ray;  hit or miss shaders will be invoked, passing results back in the payload
-        traceRayEXT(topLevelAS,           // acceleration structure
-                    gl_RayFlagsOpaqueEXT, // rayFlags
-                    0xFF,                 // cullMask
-                    0,                    // sbtRecordOffset for the hitgroups
-                    0,                    // sbtRecordStride for the hitgroups
-                    0,                    // missIndex
-                    rayOrigin,            // ray origin
-                    0.001,                // ray min range
-                    rayDirection,                 // ray direction
-                    10000.0,              // ray max range
-                    0                     // payload (location = 0)
-                    );
+    // @@ Pathtracing: Eventually, this will be the Monte-Carlo loop. (DONE)
+    for (int i = 0; i < pcRay.depth; ++i)
+    {
+      payload.hit = false;
+      // Fire the ray;  hit or miss shaders will be invoked, passing results back in the payload
+      traceRayEXT(topLevelAS,           // acceleration structure
+                  gl_RayFlagsOpaqueEXT, // rayFlags
+                  0xFF,                 // cullMask
+                  0,                    // sbtRecordOffset for the hitgroups
+                  0,                    // sbtRecordStride for the hitgroups
+                  0,                    // missIndex
+                  rayOrigin,            // ray origin
+                  0.001,                // ray min range
+                  rayDirection,         // ray direction
+                  10000.0,              // ray max range
+                  0                     // payload (location = 0)
+                  );
 
-        // If nothing was hit
-        if (!payload.hit) {
-            // @@ Raycasting: break from the (wanna-be) loop (DONE)
-            // @@ Pathtracing: break from the Monte-Carlo loop
-            // @@ History: if (i==0) record that a first-hit did not occur
-            break;
-        }
-        
-        // If something was hit, find the object data.
-        Material mat;
-        vec3 nrm;
-        GetHitObjectData(mat, nrm);
-        
-        // @@ History: if (i==0) record first-hit stuff.
-        
-        // If the material indicates the hit triangle is a light, output (via C):
-        // @@ RayCasting: the light's emission value possibly scaled by an exposure value (DONE)
-        // @@ Pathtracing: the light's emission value times all the paths BRDFs (in W)
-        // @@ Then (in either case) break from MC loop.
-        if (dot(mat.emission,mat.emission) > 0.0) 
-        {
-            C += mat.emission*pcRay.exposure;
-            break; 
-        }
+      // If nothing was hit
+      if (!payload.hit) 
+      {
+          // @@ Raycasting: break from the (wanna-be) loop (DONE)
+          // @@ Pathtracing: break from the Monte-Carlo loop (DONE)
+          // @@ History: if (i==0) record that a first-hit did not occur
+          break;
+      }
+      
+      // If something was hit, find the object data.
+      Material mat;
+      vec3 nrm;
+      GetHitObjectData(mat, nrm);
+      
+      // @@ History: if (i==0) record first-hit stuff.
+      
+      // If the material indicates the hit triangle is a light, output (via C):
+      // @@ RayCasting: the light's emission value possibly scaled by an exposure value (DONE)
+      // @@ Pathtracing: the light's emission value times all the paths BRDFs (in W) (DONE)
+      // @@ Then (in either case) break from MC loop.
+      if (dot(mat.emission, mat.emission) > 0.0) 
+      {
+          C += (mat.emission * W); //* pcRay.exposure;
+          break; 
+      }
 
-        // @@ Explicit light connection (if implemented) goes here
+      // @@ Explicit light connection (if implemented) goes here
 
-        // @@ Raycasting: Do lighting calculation here               (DONE)
-        //   as  LIGHT * (N dot L) * EvalBRDF(N, L, V, mat)
-        // Data for the calculation:
-        //   Normal N from nrm above 
-        //   Light direction L from pcRay.tempLightPos-payload.hitPos
-        //   View direction V is the -rayDirection (Note the negation!)
-        //   Light values from pcRay
-        //   Material properties from mat (above), possibly modified by a texture
+      // @@ Raycasting: Do lighting calculation here               (DONE)
+      //   as  LIGHT * (N dot L) * EvalBRDF(N, L, V, mat)
+      // Data for the calculation:
+      //   Normal N from nrm above 
+      //   Light direction L from pcRay.tempLightPos-payload.hitPos
+      //   View direction V is the -rayDirection (Note the negation!)
+      //   Light values from pcRay
+      //   Material properties from mat (above), possibly modified by a texture
 
-        vec3 N = normalize(nrm);
-        vec3 L = normalize(vec3(pcRay.tempLightPos) - payload.hitPos);
-        vec3 V = normalize(-rayDirection);
+      // vec3 N = normalize(nrm);
+      // vec3 L = normalize(vec3(pcRay.tempLightPos) - payload.hitPos);
+      // vec3 V = normalize(-rayDirection);
 
-        C = vec3(pcRay.tempLightInt) * dot(N, L) * EvalBrdf(N, L, V, mat);
+      // C = vec3(pcRay.tempLightInt) * dot(N, L) * EvalBrdf(N, L, V, mat);
 
-        // C += abs(nrm);  // This is a great debugging aid;  But ultimately, replace this.
+      // C += abs(nrm);  // This is a great debugging aid;  But ultimately, replace this.
 
-        // @@ Pathtracing:  Accumulate product of lighting calculations into W.
-        //   Sample random direction Wi = ?
-        //   Calculate f = (N dot Wi) * EvalBRDF(N, L, V, mat)
-        //   Calculate p = ?
-        //   Accumulate f/p into W;  No C += here anymore.
-        //   Setup for next loop iteration.
+      // @@ Pathtracing:  Accumulate product of lighting calculations into W. (DONE)
+      //   Sample random direction Wi = ?
+      //   Calculate f = (N dot Wi) * EvalBRDF(N, L, V, mat)
+      //   Calculate p = ?
+      //   Accumulate f/p into W;  No C += here anymore.
+      //   Setup for next loop iteration.
+      vec3 P = payload.hitPos; // current hit point
+      vec3 N = normalize(nrm); // Normal
+      vec3 Wi = SampleBrdf(payload.seed, N); // Importance sample output direction
+      vec3 Wo = -rayDirection;
 
-        } // End of Monte-Carlo block/loop
+      float value = dot(N, Wi);
+      vec3 f = (value > 0 ? value : 1.0f) * EvalBrdf(N, Wi, Wo, mat); // Color according to BRDF
+
+      float p = PdfBrdf(N, Wi) * pcRay.russianRoulette; // Probability (float) of above sample of Wi
+
+      if (p < 0.000001f) break; // Comparison with epsilon
+      W *= f/p;  // Monte-Carlo estimator
+
+      rayOrigin = P;
+      rayDirection = Wi;
+
+    } // End of Monte-Carlo block/loop
 
     // @@ Raycasting: Write C to the output pixel (DONE)
-    imageStore(colCurr, ivec2(gl_LaunchIDEXT.xy), vec4(C,1.0));
-    // @@ Pathtracing: Accumulate C into output pixel.
+    // imageStore(colCurr, ivec2(gl_LaunchIDEXT.xy), vec4(C,1.0));
+
+    // @@ Pathtracing: Accumulate C into output pixel. (DONE)
+
+    if (pcRay.clear)
+    {
+      imageStore(colCurr, ivec2(gl_LaunchIDEXT.xy), vec4(C,1.0));
+    }
+    else if (!pcRay.clear && pcRay.accumulate)
+    {
+      vec4 old = imageLoad(colCurr, ivec2(gl_LaunchIDEXT.xy));
+      vec3 Ave = old.xyz;
+      float num = old.w;
+
+      Ave += ((C - Ave) / (num + 1));
+
+      imageStore(colCurr, ivec2(gl_LaunchIDEXT.xy), vec4(Ave, num+1));
+      // imageStore(colCurr, ivec2(gl_LaunchIDEXT.xy), vec4(C,1.0));
+    }
+
     // @@ History: Accumulate C with <whatever> and write to the output pixel
 
 }

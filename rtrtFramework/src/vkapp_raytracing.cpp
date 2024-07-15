@@ -357,7 +357,9 @@ void VkApp::raytrace()
     /*while ((float(rand()) / RAND_MAX) < m_pcRay.russianRoulette)
     {
       ++m_pcRay.depth;
-    }*/
+    }
+
+    printf("Depth: %i", m_pcRay.depth);*/
 
     // Tell if calculated color value should accumulate with previous values or init for future accumulations
     m_pcRay.clear = app->myCamera.modified;
