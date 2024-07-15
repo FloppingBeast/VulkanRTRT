@@ -2,7 +2,7 @@
  * file:   raytrace.rgen
  * author: lawrence.winters (lawrence.winters@digipen.edu)
  * date:   July 2, 2024
- * Copyright © 2024 DigiPen (USA) Corporation.
+ * Copyright ï¿½ 2024 DigiPen (USA) Corporation.
  *
  * brief: Body for generating a ray in this file
  *********************************************************************/
@@ -61,10 +61,10 @@ vec3 EvalBrdf(vec3 N, vec3 L, vec3 V, Material mat)
   float D = ((mat.shininess + 2.0f) / pi2) * pow(dot(N, H), mat.shininess);
 
   // Calculate the Fresnel equation using Schlick's approximation
-  vec3 F = mat.specular + ((1 - mat.specular) * pow((1 - dot(L, H)), 5));
+  vec3 F = mat.specular + ((1.0f - mat.specular) * pow((1.0f - dot(L, H)), 5));
 
   // Calculate the self occluding and self-shadowing geometry term
-  float G = 1 / pow(dot(L, H), 2);
+  float G = 1.0f / pow(dot(L, H), 2);
 
   result = diffusePortion + (D * F * G * (1.0f/4.0f));
 
@@ -254,7 +254,7 @@ void main()
       vec3 Wo = -rayDirection;
 
       float value = dot(N, Wi);
-      vec3 f = (value > 0 ? value : 1.0f) * EvalBrdf(N, Wi, Wo, mat); // Color according to BRDF
+      vec3 f = (value > 0.0f ? value : 0.0f) * EvalBrdf(N, Wi, Wo, mat); // Color according to BRDF
 
       float p = PdfBrdf(N, Wi) * pcRay.russianRoulette; // Probability (float) of above sample of Wi
 
@@ -283,7 +283,7 @@ void main()
 
       Ave += ((C - Ave) / (num + 1));
 
-      imageStore(colCurr, ivec2(gl_LaunchIDEXT.xy), vec4(Ave, num+1));
+      imageStore(colCurr, ivec2(gl_LaunchIDEXT.xy), vec4(Ave, num + 1));
       // imageStore(colCurr, ivec2(gl_LaunchIDEXT.xy), vec4(C,1.0));
     }
 

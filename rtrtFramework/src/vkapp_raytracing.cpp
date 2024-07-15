@@ -353,13 +353,13 @@ void VkApp::raytrace()
 
     // Calculate depth of paths
     m_pcRay.russianRoulette = 0.7f;
-    m_pcRay.depth = 4;
-    /*while ((float(rand()) / RAND_MAX) < m_pcRay.russianRoulette)
+    m_pcRay.depth = 1;
+    while ((float(rand()) / RAND_MAX) < m_pcRay.russianRoulette)
     {
       ++m_pcRay.depth;
     }
-
-    printf("Depth: %i", m_pcRay.depth);*/
+    uint max = 4;
+    m_pcRay.depth = std::min(m_pcRay.depth, max);
 
     // Tell if calculated color value should accumulate with previous values or init for future accumulations
     m_pcRay.clear = app->myCamera.modified;
