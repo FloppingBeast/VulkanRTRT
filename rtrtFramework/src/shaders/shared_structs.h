@@ -104,16 +104,16 @@ struct PushConstantRay
 {
   // @@ Raycasting: Declare 3 temporary light values. (DONE) 
   // @@ Pathtracing: Remove these 3 values because path tracing finds light by tracing rays. (DONE)
-  ALIGNAS(16) vec4 tempLightPos;
+  /*ALIGNAS(16) vec4 tempLightPos;
   ALIGNAS(16) vec4 tempLightInt;
-  ALIGNAS(16) vec4 tempAmbient;
+  ALIGNAS(16) vec4 tempAmbient;*/
 
   ALIGNAS(4) bool clear;  // Tell the ray generation shader to start accumulation from scratch
   ALIGNAS(4) float exposure;
 
   ALIGNAS(4) int frameSeed;         // Frame specific random number
   ALIGNAS(4) float russianRoulette; // Threshold for ray depth
-  ALIGNAS(4) uint depth;            // Number of paths
+  ALIGNAS(4) int depth;            // Number of paths
 
   // @@ Set alignmentTest to a known value in C++;  Test for that value in the shader!
   ALIGNAS(4) int alignmentTest;

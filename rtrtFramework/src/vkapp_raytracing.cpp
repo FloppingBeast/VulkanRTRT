@@ -344,9 +344,9 @@ void VkApp::raytrace()
     // @@ Raycasting: Define and fill 3 temporary light values. (DONE)
     // @@ Pathtracing: Remove these because path tracing finds emitters defined in the model. (DONE)
     // These values define a light near the ceiling of the living room model.
-    m_pcRay.tempLightPos = vec4(nonrtLightPosition, 0.0);
+    /*m_pcRay.tempLightPos = vec4(nonrtLightPosition, 0.0);
     m_pcRay.tempLightInt = vec4(nonrtLightIntensity);
-    m_pcRay.tempAmbient = vec4(nonrtLightAmbient);
+    m_pcRay.tempAmbient = vec4(nonrtLightAmbient);*/
     
     // Determine frame specific random number
     m_pcRay.frameSeed = rand() % 32768;
@@ -358,8 +358,7 @@ void VkApp::raytrace()
     {
       ++m_pcRay.depth;
     }
-    uint max = 4;
-    m_pcRay.depth = std::min(m_pcRay.depth, max);
+    m_pcRay.depth = std::min(m_pcRay.depth, 4);
 
     // Tell if calculated color value should accumulate with previous values or init for future accumulations
     m_pcRay.clear = app->myCamera.modified;
@@ -367,7 +366,7 @@ void VkApp::raytrace()
 
     if (m_pcRay.clear) frameCount = 1;
 
-    m_pcRay.alignmentTest = 1234;
+    // m_pcRay.alignmentTest = 1234;
 
     // Bind the ray tracing pipeline
     vkCmdBindPipeline(m_commandBuffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR, m_rtPipeline);

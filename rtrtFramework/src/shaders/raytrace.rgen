@@ -46,29 +46,57 @@ layout(buffer_reference, scalar) buffer Materials {Material m[]; }; // Array of 
 layout(buffer_reference, scalar) buffer MatIndices {int i[]; }; // Material ID for each triangle
 
 // @@ Raycasting: Write EvalBrdf -- The BRDF lighting calculation (DONE)
+
+float GFactor(vec3 v, vec3 m, vec3 N, float ag2)
+{
+  float vdotN = dot(v, N);
+
+  if (vdotN > 1.0f)
+  {
+    return 1.0f;
+  }
+  else if ((dot(v, m) / vdotN) <= 0.0f)
+  {
+    return 0.0f;
+  }
+  else
+  {
+    float tanv = sqrt(1.0f - (vdotN * vdotN)) / vdotN;
+    
+    return (2.0f / sqrt(1.0f + (ag2 * (tanv * tanv))));
+  }
+}
+
+//float DFactor()
+//{
+//  
+//}
+
 vec3 EvalBrdf(vec3 N, vec3 L, vec3 V, Material mat) 
 {
-  // Where result will be stored
-  vec3 result = vec3(1.0f);
+  vec3 diffusePortion = mat.diffuse / pi;
 
-  // Diffuse portion of the BRDF
-  vec3 diffusePortion = (mat.diffuse / pi);
+  vec3 H = normalize(L + V);
 
-  // Calculate halfway vector
-  vec3 H = (L + V) / length(L + V);
+  float LdotH = dot(L, H);
+  float NdotH = dot(N, H);
 
-  // Calculate micro-facet distribution
-  float D = ((mat.shininess + 2.0f) / pi2) * pow(dot(N, H), mat.shininess);
+  float LdotN = dot(L, N);
+  float VdotN = dot(V, N);
 
-  // Calculate the Fresnel equation using Schlick's approximation
-  vec3 F = mat.specular + ((1.0f - mat.specular) * pow((1.0f - dot(L, H)), 5));
+  float ag = sqrt(2.0f / (mat.shininess + 2.0f));
+  float ag2 = ag * ag;
 
-  // Calculate the self occluding and self-shadowing geometry term
-  float G = 1.0f / pow(dot(L, H), 2);
+  float lamNH = NdotH > 0.0f ? 1.0f : 0.0f;
+  float D = lamNH * ((ag2) / (pi * pow((NdotH * NdotH) * (ag2 - 1) + 1.0f, 2)));
 
-  result = diffusePortion + (D * F * G * (1.0f/4.0f));
+  vec3 F = mat.specular + ((1 - mat.specular) * pow(1 - LdotH, 5));
 
-  return result;
+  float G = GFactor(L, H, N, ag2) * GFactor(V, H, N, ag2);
+
+  vec3 FGD = (F * G * D) / (4.0f * abs(LdotN) * abs(VdotN));
+
+  return diffusePortion + FGD;
 }
 
 // @@ Pathtracing: Write SampleBrdf, PdfBrdf, ...(DONE)
@@ -144,11 +172,11 @@ void GetHitObjectData(out Material mat, out vec3 nrm)
 
 void main() 
 {
-    // @@ Raycasting: Since the alignment of pcRay is SO easy to get wrong, test it
+    // @@ Raycasting: Sin4 the alignment of pcRay is SO easy to get wrong, test it
     // here and flag problems with a fully red screen. (DONE)
-    if (pcRay.alignmentTest != 1234) {
-        imageStore(colCurr, ivec2(gl_LaunchIDEXT.xy), vec4(1,0,0,0));
-        return; }
+//    if (pcRay.alignmentTest != 1234) {
+//        imageStore(colCurr, ivec2(gl_LaunchIDEXT.xy), vec4(1,0,0,0));
+//        return; }
     
     // This shader's invocation is for the pixel indicated by
     // gl_LaunchIDEXT. Calculate that pixel's center (in NDC) and
@@ -158,7 +186,7 @@ void main()
  
     vec3 eyeW    = (mats.viewInverse * vec4(0, 0, 0, 1)).xyz;
     vec4 pixelH = mats.viewInverse * mats.projInverse * vec4(pixelNDC.x, pixelNDC.y, 1, 1);
-    vec3 pixelW = pixelH.xyz/pixelH.w;
+    vec3 pixelW = pixelH.xyz / pixelH.w;
 
     // This pixel's ray:
     vec3 rayOrigin    = eyeW;
@@ -253,8 +281,7 @@ void main()
       vec3 Wi = SampleBrdf(payload.seed, N); // Importance sample output direction
       vec3 Wo = -rayDirection;
 
-      float value = dot(N, Wi);
-      vec3 f = (value > 0.0f ? value : 0.0f) * EvalBrdf(N, Wi, Wo, mat); // Color according to BRDF
+      vec3 f = clamp(dot(N, Wi), 0.0f, 1.0f) * EvalBrdf(N, Wi, Wo, mat);
 
       float p = PdfBrdf(N, Wi) * pcRay.russianRoulette; // Probability (float) of above sample of Wi
 
@@ -263,12 +290,11 @@ void main()
 
       rayOrigin = P;
       rayDirection = Wi;
-
     } // End of Monte-Carlo block/loop
 
     // @@ Raycasting: Write C to the output pixel (DONE)
     // imageStore(colCurr, ivec2(gl_LaunchIDEXT.xy), vec4(C,1.0));
-
+     
     // @@ Pathtracing: Accumulate C into output pixel. (DONE)
 
     if (pcRay.clear)
@@ -284,7 +310,6 @@ void main()
       Ave += ((C - Ave) / (num + 1));
 
       imageStore(colCurr, ivec2(gl_LaunchIDEXT.xy), vec4(Ave, num + 1));
-      // imageStore(colCurr, ivec2(gl_LaunchIDEXT.xy), vec4(C,1.0));
     }
 
     // @@ History: Accumulate C with <whatever> and write to the output pixel
