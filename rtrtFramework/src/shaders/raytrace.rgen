@@ -32,7 +32,11 @@ layout(push_constant) uniform _PushConstantRay { PushConstantRay pcRay; };
 // Ray tracing descriptor set: 0:acceleration structure, and 1: color output image
 layout(set=0, binding=0) uniform accelerationStructureEXT topLevelAS;
 layout(set=0, binding=1, rgba32f) uniform image2D colCurr; // Output image: m_rtColCurrBuffer
-// Many more buffers (at bindings 2 ... 7) will be added to this eventually.
+layout(set=0, binding=2, rgba32f) uniform image2D colPrev; // Output image: m_rtColPrevBuffer
+layout(set=0, binding=3, rgba32f) uniform image2D kdCurr; // Surface store: m_rtKdCurrBuffer
+layout(set=0, binding=4, rgba32f) uniform image2D kdPrev; // Surface store: m_rtKdPrevBuffer
+layout(set=0, binding=5, rgba32f) uniform image2D ndCurr; // Depth buffer: m_rtNdCurrBuffer
+layout(set=0, binding=6, rgba32f) uniform image2D ndPrev; // Depth buffer: m_rtNdPrevBuffer
 
 // Object model descriptor set: 0: matrices, 1:object buffer addresses, 2: texture list
 layout(set=1, binding=0) uniform _MatrixUniforms { MatrixUniforms mats; };
@@ -47,6 +51,7 @@ layout(buffer_reference, scalar) buffer MatIndices {int i[]; }; // Material ID f
 
 // @@ Raycasting: Write EvalBrdf -- The BRDF lighting calculation (DONE)
 
+// Uses GGX to solve for G factor
 float GFactor(vec3 v, vec3 m, vec3 N, float ag2)
 {
   float vdotN = dot(v, N);
@@ -63,40 +68,59 @@ float GFactor(vec3 v, vec3 m, vec3 N, float ag2)
   {
     float tanv = sqrt(1.0f - (vdotN * vdotN)) / vdotN;
     
-    return (2.0f / sqrt(1.0f + (ag2 * (tanv * tanv))));
+    return ( 2.0f / sqrt(1.0f + (ag2 * (tanv * tanv))) );
   }
 }
 
-//float DFactor()
-//{
-//  
-//}
+// Uses GGX to solve for D factor
+float DFactor(vec3 m, vec3 N, float ag2)
+{
+  float mdotN = dot(m, N);
 
+  if (mdotN <= 0.0f)
+  {
+    return 0.0f;
+  }
+  else
+  {
+    float tanm = sqrt(1.0f - (mdotN * mdotN)) / mdotN;
+    float tanm2 = tanm * tanm;
+    
+    return ( ag2 / (pi * pow(mdotN, 4) * pow(ag2 + tanm2, 2)) );
+  }
+}
+
+// Calculates BRDF lighting for specular effects
 vec3 EvalBrdf(vec3 N, vec3 L, vec3 V, Material mat) 
 {
   vec3 diffusePortion = mat.diffuse / pi;
 
-  vec3 H = normalize(L + V);
+  vec3 BRDF = vec3(0.0f);
 
-  float LdotH = dot(L, H);
-  float NdotH = dot(N, H);
+  if (pcRay.BRDF)
+  {
+    vec3 H = normalize(L + V);
 
-  float LdotN = dot(L, N);
-  float VdotN = dot(V, N);
+    float LdotH = dot(L, H);
 
-  float ag = sqrt(2.0f / (mat.shininess + 2.0f));
-  float ag2 = ag * ag;
+    float LdotN = dot(L, N);
+    float VdotN = dot(V, N);
 
-  float lamNH = NdotH > 0.0f ? 1.0f : 0.0f;
-  float D = lamNH * ((ag2) / (pi * pow((NdotH * NdotH) * (ag2 - 1) + 1.0f, 2)));
+    float ag = sqrt(2.0f / (mat.shininess + 2.0f));
+    float ag2 = ag * ag;
 
-  vec3 F = mat.specular + ((1 - mat.specular) * pow(1 - LdotH, 5));
+    float D = DFactor(H, N, ag2);
 
-  float G = GFactor(L, H, N, ag2) * GFactor(V, H, N, ag2);
+    vec3 F = mat.specular + (1.0f - mat.specular) * pow(1.0f - abs(LdotH), 5);
 
-  vec3 FGD = (F * G * D) / (4.0f * abs(LdotN) * abs(VdotN));
+    float G = GFactor(L, H, N, ag2) * GFactor(V, H, N, ag2);
 
-  return diffusePortion + FGD;
+    vec3 FGD = (D * G * F) / (4.0f * abs(LdotN) * abs(VdotN));
+
+    BRDF = FGD;
+  }
+
+  return diffusePortion + BRDF;
 }
 
 // @@ Pathtracing: Write SampleBrdf, PdfBrdf, ...(DONE)
@@ -121,10 +145,6 @@ vec3 SampleBrdf(inout uint seed, in vec3 N)
 {
   return SampleLobe(N, sqrt(rnd(seed)), pi2 * rnd(seed));
 }
-
-//float PdfLight(float area) 
-//{ 
-//}
 
 float PdfBrdf(vec3 N, vec3 Wi)
 {
@@ -202,6 +222,10 @@ void main()
     payload.seed = tea((gl_LaunchIDEXT.y * gl_LaunchSizeEXT.x) + gl_LaunchIDEXT.x, pcRay.frameSeed);
 
     // @@ History: Initialize first-hit data
+    bool firstHit = false;
+    float firstDepth = 0;
+    vec3 firstNrm = vec3(0);
+    vec3 firstKd = vec3(0);
     
     // @@ Raycasting: Put all the ray casting code in this loop that's
     // not really a loop since it executes only once.  WHY?  Just
@@ -231,6 +255,8 @@ void main()
           // @@ Raycasting: break from the (wanna-be) loop (DONE)
           // @@ Pathtracing: break from the Monte-Carlo loop (DONE)
           // @@ History: if (i==0) record that a first-hit did not occur
+          if (i == 0) firstHit = false;
+
           break;
       }
       
@@ -240,6 +266,13 @@ void main()
       GetHitObjectData(mat, nrm);
       
       // @@ History: if (i==0) record first-hit stuff.
+      if (i == 0)
+      {
+        firstHit = payload.hit;
+        firstDepth = gl_HitTEXT;
+        firstNrm = nrm;
+        firstKd = mat.diffuse;
+      }
       
       // If the material indicates the hit triangle is a light, output (via C):
       // @@ RayCasting: the light's emission value possibly scaled by an exposure value (DONE)
@@ -281,7 +314,7 @@ void main()
       vec3 Wi = SampleBrdf(payload.seed, N); // Importance sample output direction
       vec3 Wo = -rayDirection;
 
-      vec3 f = clamp(dot(N, Wi), 0.0f, 1.0f) * EvalBrdf(N, Wi, Wo, mat);
+      vec3 f = dot(N, Wi) * EvalBrdf(N, Wi, Wo, mat);
 
       float p = PdfBrdf(N, Wi) * pcRay.russianRoulette; // Probability (float) of above sample of Wi
 

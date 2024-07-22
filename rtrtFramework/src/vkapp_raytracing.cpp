@@ -32,10 +32,35 @@ using namespace glm;
 void VkApp::createRtBuffers()
 {
     // Note: This will grow to create more than the single buffer m_rtColCurrBuffer.
-    m_rtColCurrBuffer = createBufferImage(windowSize);
+    m_rtColCurrBuffer = createBufferImage(m_windowSize);
     transitionImageLayout(m_rtColCurrBuffer.image, VK_FORMAT_R32G32B32A32_SFLOAT,
                           VK_IMAGE_LAYOUT_UNDEFINED,
                           VK_IMAGE_LAYOUT_GENERAL, 1);
+
+    m_rtColPrevBuffer = createBufferImage(m_windowSize);
+    transitionImageLayout(m_rtColPrevBuffer.image, VK_FORMAT_R32G32B32A32_SFLOAT,
+      VK_IMAGE_LAYOUT_UNDEFINED,
+      VK_IMAGE_LAYOUT_GENERAL, 1);
+
+    m_rtKdCurrBuffer = createBufferImage(m_windowSize);
+    transitionImageLayout(m_rtKdCurrBuffer.image, VK_FORMAT_R32G32B32A32_SFLOAT,
+      VK_IMAGE_LAYOUT_UNDEFINED,
+      VK_IMAGE_LAYOUT_GENERAL, 1);
+
+    m_rtKdPrevBuffer = createBufferImage(m_windowSize);
+    transitionImageLayout(m_rtKdPrevBuffer.image, VK_FORMAT_R32G32B32A32_SFLOAT,
+      VK_IMAGE_LAYOUT_UNDEFINED,
+      VK_IMAGE_LAYOUT_GENERAL, 1);
+
+    m_rtNdCurrBuffer = createBufferImage(m_windowSize);
+    transitionImageLayout(m_rtNdCurrBuffer.image, VK_FORMAT_R32G32B32A32_SFLOAT,
+      VK_IMAGE_LAYOUT_UNDEFINED,
+      VK_IMAGE_LAYOUT_GENERAL, 1);
+
+    m_rtNdPrevBuffer = createBufferImage(m_windowSize);
+    transitionImageLayout(m_rtNdPrevBuffer.image, VK_FORMAT_R32G32B32A32_SFLOAT,
+      VK_IMAGE_LAYOUT_UNDEFINED,
+      VK_IMAGE_LAYOUT_GENERAL, 1);
 
     // @@ Destroy whatever buffers were created. (DONE)
 }
@@ -49,6 +74,7 @@ void VkApp::initRayTracing()
 {
     m_pcRay.exposure = 2.0;
     m_pcRay.accumulate = true;
+    m_pcRay.BRDF = false;
     
     // Requesting ray tracing properties
     VkPhysicalDeviceProperties2 prop2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2};
@@ -81,18 +107,34 @@ void VkApp::initRayTracing()
  **********************************************************************/
 void VkApp::createRtDescriptorSet()
 {
-    m_rtDesc.setBindings(m_device, {
-            {0, VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR, 1,  // TLAS
-             VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR},
-            {1, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1,  // Col output image
-             VK_SHADER_STAGE_RAYGEN_BIT_KHR},
-        });
+  m_rtDesc.setBindings(m_device, {
+          {0, VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR, 1,  // TLAS
+            VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR},
+          {1, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1,  // Col output image
+            VK_SHADER_STAGE_RAYGEN_BIT_KHR},
+          {2, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1,  // Prev Col output image
+            VK_SHADER_STAGE_RAYGEN_BIT_KHR},
+          {3, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1,  // Kd surface
+            VK_SHADER_STAGE_RAYGEN_BIT_KHR},
+          {4, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1,  // Prev Kd surface
+            VK_SHADER_STAGE_RAYGEN_BIT_KHR},
+          {5, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1,  // Nd image
+            VK_SHADER_STAGE_RAYGEN_BIT_KHR},
+          {6, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1,  // Prev Nd image
+            VK_SHADER_STAGE_RAYGEN_BIT_KHR}
+    });
     
 
     // Note: This will grow to include more buffers.
 
     m_rtDesc.write(m_device, 0, m_rtBuilder.getAccelerationStructure());
     m_rtDesc.write(m_device, 1, m_rtColCurrBuffer.Descriptor());
+    m_rtDesc.write(m_device, 2, m_rtColPrevBuffer.Descriptor());
+    m_rtDesc.write(m_device, 3, m_rtKdCurrBuffer.Descriptor());
+    m_rtDesc.write(m_device, 4, m_rtKdPrevBuffer.Descriptor());
+    m_rtDesc.write(m_device, 5, m_rtNdCurrBuffer.Descriptor());
+    m_rtDesc.write(m_device, 6, m_rtNdPrevBuffer.Descriptor());
+
 
     // m_rtDesc needs to be destroyed
 }
@@ -317,8 +359,8 @@ void VkApp::CmdCopyImage(ImageWrap& src, ImageWrap& dst)
     imageCopyRegion.srcSubresource.layerCount = 1;
     imageCopyRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     imageCopyRegion.dstSubresource.layerCount = 1;
-    imageCopyRegion.extent.width              = windowSize.width;
-    imageCopyRegion.extent.height             = windowSize.height;
+    imageCopyRegion.extent.width              = m_windowSize.width;
+    imageCopyRegion.extent.height             = m_windowSize.height;
     imageCopyRegion.extent.depth              = 1;
 
     imageLayoutBarrier(m_commandBuffer, src.image,
@@ -389,7 +431,7 @@ void VkApp::raytrace()
 
     // This dispatches the ray generation shader for each pixel on screen.
     vkCmdTraceRaysKHR(m_commandBuffer, &m_rgenRegion, &m_missRegion, &m_hitRegion,
-                      &m_callRegion, windowSize.width, windowSize.height, 1);
+                      &m_callRegion, m_windowSize.width, m_windowSize.height, 1);
 
     
     // Copy the ray tracer output image to the scanline output image
@@ -397,11 +439,13 @@ void VkApp::raytrace()
     // that image on the screen.
     CmdCopyImage(m_rtColCurrBuffer, m_scImageBuffer);
 
+
+
     if (m_pcRay.accumulate) frameCount++;
 
     // @@ History and Denoising: The three Curr buffers need copying to the Prev buffers.
-    //CmdCopyImage(m_rtColCurrBuffer, m_rtColPrevBuffer);
-    //CmdCopyImage(m_rtKdCurrBuffer, m_rtKdPrevBuffer);
-    //CmdCopyImage(m_rtNdCurrBuffer, m_rtNdPrevBuffer);
+    CmdCopyImage(m_rtColCurrBuffer, m_rtColPrevBuffer);
+    CmdCopyImage(m_rtKdCurrBuffer, m_rtKdPrevBuffer);
+    CmdCopyImage(m_rtNdCurrBuffer, m_rtNdPrevBuffer);
 }
 

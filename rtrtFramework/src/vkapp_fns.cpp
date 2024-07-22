@@ -49,7 +49,15 @@ void VkApp::destroyAllVulkanResources()
 
     m_rtDesc.destroy(m_device);
     m_rtBuilder.destroy();
+
     m_rtColCurrBuffer.destroy(m_device);
+    m_rtColPrevBuffer.destroy(m_device);
+
+    m_rtKdCurrBuffer.destroy(m_device);
+    m_rtKdPrevBuffer.destroy(m_device);
+
+    m_rtNdCurrBuffer.destroy(m_device);
+    m_rtNdPrevBuffer.destroy(m_device);
 
     // Project 2 Destroy
     vkDestroyPipelineLayout(m_device, m_scanlinePipelineLayout, nullptr);
@@ -103,10 +111,51 @@ void VkApp::destroyAllVulkanResources()
  **********************************************************************/
 void VkApp::recreateSizedResources(VkExtent2D size)
 {
-    assert(false && "Not ready for onResize events.");
-    // Destroy everything related to the window size
-    // (RE)Create them all at the new size
+  assert(false && "Not ready for onResize events.");
+
+  //vkDeviceWaitIdle(m_device);
+
+  //int width = 0,
+  //  height = 0;
+  //
+  //glfwGetWindowSize(app->GLFW_window, &width, &height);
+  //
+
+  //if (width != size.width || height != size.height)
+  //{
+  //  printf("Old window : (%i, %i)\n", size.width, size.height);
+  //  printf("New window : (%i, %i)\n", width, height);
+  //}
+  //else return;
+
+  //// assert(false && "Not ready for onResize events.");
+  //// Destroy everything related to the window size
+  //m_rtColCurrBuffer.destroy(m_device);
+  //vkDestroyPipelineLayout(m_device, m_scanlinePipelineLayout, nullptr);
+  //vkDestroyPipeline(m_device, m_scanlinePipeline, nullptr);
+  //vkDestroyRenderPass(m_device, m_scanlineRenderPass, nullptr);
+  //vkDestroyFramebuffer(m_device, m_scanlineFramebuffer, nullptr);
+  //vkDestroyPipelineLayout(m_device, m_postPipelineLayout, nullptr);
+  //vkDestroyPipeline(m_device, m_postPipeline, nullptr);
+  //m_scImageBuffer.destroy(m_device);
+  //for (uint32_t i = 0; i < m_imageCount; i++)
+  //{
+  //  vkDestroyFramebuffer(m_device, m_framebuffers[i], nullptr);
+  //}
+  //m_depthImage.destroy(m_device);
+  //destroySwapchain();
+
+  //// (RE)Create them all at the new size
+  //createSwapchain();
+  //createDepthResource();
+  //createPostFrameBuffers();
+  //createScBuffer();
+  //createPostPipeline();
+  //createScanlineRenderPass();
+  //createScPipeline();
+  //createRtBuffers();
 }
+
  /*********************************************************************
   * param:  doApiDump, Lunar dump with tons of information (true if wanted)
   *
@@ -723,7 +772,7 @@ void VkApp::createSwapchain()
     //NAME(m_writtenSemaphore, VK_OBJECT_TYPE_SEMAPHORE, "m_writtenSemaphore");
     //NAME(m_queue, VK_OBJECT_TYPE_QUEUE, "m_queue");
         
-    windowSize = swapchainExtent;
+    m_windowSize = swapchainExtent;
     // To destroy:  Complete and call function destroySwapchain (DONE)
 }
 
@@ -768,7 +817,7 @@ void VkApp::createDepthResource()
 
   // Note m_depthImage is type ImageWrap; a tiny wrapper around
   // several related Vulkan objects.
-  m_depthImage = createImageWrap(windowSize.width, windowSize.height,
+  m_depthImage = createImageWrap(m_windowSize.width, m_windowSize.height,
     VK_FORMAT_X8_D24_UNORM_PACK32, 
     VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
@@ -974,8 +1023,8 @@ void VkApp::createPostFrameBuffers()
   // Create frame buffers for every swap chain image
   VkFramebufferCreateInfo _ci{ VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO };
   _ci.renderPass = m_postRenderPass;
-  _ci.width = windowSize.width;
-  _ci.height = windowSize.height;
+  _ci.width = m_windowSize.width;
+  _ci.height = m_windowSize.height;
   _ci.layers = 1;
   _ci.attachmentCount = 2;
   _ci.pAttachments = fbattachments.data();
@@ -1059,14 +1108,14 @@ void VkApp::createPostPipeline()
     VkViewport viewport{};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = (float) windowSize.width;
-    viewport.height = (float) windowSize.height;
+    viewport.width = (float) m_windowSize.width;
+    viewport.height = (float) m_windowSize.height;
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
     VkRect2D scissor{};
     scissor.offset = {0, 0};
-    scissor.extent = VkExtent2D{windowSize.width, windowSize.height};
+    scissor.extent = VkExtent2D{m_windowSize.width, m_windowSize.height};
 
     VkPipelineViewportStateCreateInfo viewportState{};
     viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -1178,13 +1227,13 @@ void VkApp::postProcess()
     _i.pClearValues    = clearValues.data();
     _i.renderPass      = m_postRenderPass;
     _i.framebuffer     = m_framebuffers[m_swapchainIndex];
-    _i.renderArea      = {{0, 0}, windowSize};
+    _i.renderArea      = {{0, 0}, m_windowSize};
     
     vkCmdBeginRenderPass(m_commandBuffer, &_i, VK_SUBPASS_CONTENTS_INLINE);
     {   // extra indent for renderpass commands
         
-        auto aspectRatio = static_cast<float>(windowSize.width)
-            / static_cast<float>(windowSize.height);
+        auto aspectRatio = static_cast<float>(m_windowSize.width)
+            / static_cast<float>(m_windowSize.height);
         vkCmdBindPipeline(m_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_postPipeline);
         // Eventually uncomment this
         vkCmdBindDescriptorSets(m_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,

@@ -37,8 +37,11 @@ void drawGUI(App* app, VkApp& VK)
     // An example check box:
     ImGui::Checkbox("Ray Trace", &VK.useRaytracer);
 
-    // Accumulate raytrace
+    // Accumulate paths
     ImGui::Checkbox("Accumulate", &VK.m_pcRay.accumulate);
+
+    // Use of full BRDF
+    ImGui::Checkbox("Full BRDF", &VK.m_pcRay.BRDF);
 
     // Clear and repath
     ImGui::Checkbox("Clear", &(app->myCamera.modified));
@@ -47,9 +50,7 @@ void drawGUI(App* app, VkApp& VK)
     if (ImGui::SliderFloat("Exposure", &VK.m_pcRay.exposure, 0.5f, 8.0f, "%.5f"))
         VK.m_pcRay.clear = true;
 
-    ImGui::Text("Frame Count: %i", ImGui::GetFrameCount());
     ImGui::Text("Frame Count: %i", VK.frameCount);
-
 }
 
 //////////////////////////////////////////////////////////////////////////

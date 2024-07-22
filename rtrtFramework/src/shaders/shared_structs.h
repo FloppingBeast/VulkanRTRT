@@ -120,6 +120,7 @@ struct PushConstantRay
 
   // ImGUI values
   ALIGNAS(4) bool accumulate;
+  ALIGNAS(4) bool BRDF;
 };
 
 struct Vertex  // Created by readModel; used in shaders

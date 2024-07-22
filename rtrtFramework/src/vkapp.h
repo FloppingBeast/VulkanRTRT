@@ -136,7 +136,7 @@ public:
     VkFence m_waitFence{}; 
     VkSemaphore m_readSemaphore{};
     VkSemaphore m_writtenSemaphore{};
-    VkExtent2D windowSize{0, 0}; // Size of the window
+    VkExtent2D m_windowSize{0, 0}; // Size of the window
     void createSwapchain();
     void destroySwapchain();
 

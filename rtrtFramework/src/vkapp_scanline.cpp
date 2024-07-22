@@ -412,7 +412,7 @@ void VkApp::createPostDescriptor()
  **********************************************************************/
 void VkApp::createScBuffer()
 {
-    m_scImageBuffer = createBufferImage(windowSize);
+    m_scImageBuffer = createBufferImage(m_windowSize);
 
     VkCommandBuffer    cmdBuf = createTempCmdBuffer();
     imageLayoutBarrier(cmdBuf, m_scImageBuffer.image,
@@ -514,8 +514,8 @@ void VkApp::createScanlineRenderPass()
     info.renderPass      = m_scanlineRenderPass;
     info.attachmentCount = attachments.size();
     info.pAttachments    = attachments.data();
-    info.width           = windowSize.width;
-    info.height          = windowSize.height;
+    info.width           = m_windowSize.width;
+    info.height          = m_windowSize.height;
     info.layers          = 1;
     vkCreateFramebuffer(m_device, &info, nullptr, &m_scanlineFramebuffer);
 
@@ -612,14 +612,14 @@ void VkApp::createScPipeline()
     VkViewport viewport{};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = (float) windowSize.width;
-    viewport.height = (float) windowSize.height;
+    viewport.width = (float) m_windowSize.width;
+    viewport.height = (float) m_windowSize.height;
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
     VkRect2D scissor{};
     scissor.offset = {0, 0};
-    scissor.extent = VkExtent2D{windowSize.width, windowSize.height};
+    scissor.extent = VkExtent2D{m_windowSize.width, m_windowSize.height};
 
     VkPipelineViewportStateCreateInfo viewportState{};
     viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -740,7 +740,7 @@ void VkApp::rasterize()
     _i.pClearValues    = clearValues.data();
     _i.renderPass      = m_scanlineRenderPass;
     _i.framebuffer     = m_scanlineFramebuffer;
-    _i.renderArea      = {{0, 0}, windowSize};
+    _i.renderArea      = {{0, 0}, m_windowSize};
     vkCmdBeginRenderPass(m_commandBuffer, &_i, VK_SUBPASS_CONTENTS_INLINE);
 
     vkCmdBindPipeline(m_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_scanlinePipeline);
@@ -775,7 +775,7 @@ void VkApp::rasterize()
 void VkApp::updateCameraBuffer()
 {
     // Prepare new UBO contents on host.
-    const float    aspectRatio = windowSize.width / static_cast<float>(windowSize.height);
+    const float    aspectRatio = m_windowSize.width / static_cast<float>(m_windowSize.height);
     MatrixUniforms hostUBO     = {};
 
     glm::mat4    view = app->myCamera.view(glfwGetTime());

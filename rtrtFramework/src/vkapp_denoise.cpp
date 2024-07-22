@@ -20,7 +20,7 @@ using namespace glm;
 
 void VkApp::createDenoiseBuffer()
 {
-    m_denoiseBuffer = createBufferImage(windowSize);
+    m_denoiseBuffer = createBufferImage(m_windowSize);
     transitionImageLayout(m_denoiseBuffer.image, VK_FORMAT_R32G32B32A32_SFLOAT,
                           VK_IMAGE_LAYOUT_UNDEFINED,
                           VK_IMAGE_LAYOUT_GENERAL, 1);
@@ -103,8 +103,8 @@ void VkApp::denoise()
         // This MUST match the shaders's line:
         //    layout(local_size_x=GROUP_SIZE, local_size_y=1, local_size_z=1) in;
         vkCmdDispatch(m_commandBuffer,
-                      (windowSize.width + GROUP_SIZE-1) / GROUP_SIZE,
-                      windowSize.height, 1);
+                      (m_windowSize.width + GROUP_SIZE-1) / GROUP_SIZE,
+                      m_windowSize.height, 1);
 
         // Wait until denoise shader is done writing to m_denoiseBuffer
         imgMemBarrier.image = m_denoiseBuffer.image;

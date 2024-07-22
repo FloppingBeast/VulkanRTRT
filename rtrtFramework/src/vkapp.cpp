@@ -154,7 +154,7 @@ void VkApp::prepareFrame()
 
   // Check if window has been resized -- or other(??) swapchain specific event
   if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-    recreateSizedResources(windowSize);
+    recreateSizedResources(m_windowSize);
   }
 }
 
