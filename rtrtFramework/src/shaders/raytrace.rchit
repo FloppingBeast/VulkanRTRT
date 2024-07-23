@@ -2,7 +2,7 @@
  * file:   raytrace.rchit
  * author: lawrence.winters (lawrence.winters@digipen.edu)
  * date:   July 2, 2024
- * Copyright © 2024 DigiPen (USA) Corporation.
+ * Copyright ï¿½ 2024 DigiPen (USA) Corporation.
  *
  * brief: Shader for rays that hit light
  *********************************************************************/
@@ -23,6 +23,8 @@ void main()
   // remaining payload values with information (provided by Vulkan)
   // about the hit point. (DONE)
   payload.hit = true;
+  
+  payload.hitDist = gl_HitTEXT;
 
   payload.instanceIndex = gl_InstanceCustomIndexEXT;
   payload.primitiveIndex = gl_PrimitiveID;

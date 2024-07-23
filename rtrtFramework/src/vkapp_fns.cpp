@@ -657,7 +657,7 @@ void VkApp::createSwapchain()
         && imageCount > capabilities.maxImageCount) {
             imageCount = capabilities.maxImageCount; }
     
-    assert (imageCount == 3);
+    // assert (imageCount == 3);
     // If this triggers, disable the assert, BUT help me understand
     // the situation that caused it.  
 

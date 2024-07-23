@@ -223,9 +223,12 @@ void main()
 
     // @@ History: Initialize first-hit data
     bool firstHit = false;
+    vec3 firstPos = vec3(0);
     float firstDepth = 0;
     vec3 firstNrm = vec3(0);
     vec3 firstKd = vec3(0);
+
+    bool invalidHistory = false; // Use for tracking failure cases of history
     
     // @@ Raycasting: Put all the ray casting code in this loop that's
     // not really a loop since it executes only once.  WHY?  Just
@@ -269,7 +272,8 @@ void main()
       if (i == 0)
       {
         firstHit = payload.hit;
-        firstDepth = gl_HitTEXT;
+        firstPos = payload.hitPos;
+        firstDepth = payload.hitDist;
         firstNrm = nrm;
         firstKd = mat.diffuse;
       }
@@ -330,23 +334,60 @@ void main()
      
     // @@ Pathtracing: Accumulate C into output pixel. (DONE)
 
-    if (pcRay.clear)
-    {
-      imageStore(colCurr, ivec2(gl_LaunchIDEXT.xy), vec4(C,1.0));
-    }
+    // if (pcRay.clear)
+    // {
+    //   imageStore(colCurr, ivec2(gl_LaunchIDEXT.xy), vec4(C,1.0));
+    //   // imageStore(kdCurr, ivec2(gl_LaunchIDEXT.xy), vec4(firstKd,0));
+    //   // imageStore(ndCurr, ivec2(gl_LaunchIDEXT.xy), vec4(firstNrm,firstDepth));
+    // }
     else if (!pcRay.clear && pcRay.accumulate)
     {
       vec4 old = imageLoad(colCurr, ivec2(gl_LaunchIDEXT.xy));
-      vec3 Ave = old.xyz;
-      float num = old.w;
+      vec3 oldAve = old.xyz;
+      float oldN = old.w;
 
-      Ave += ((C - Ave) / (num + 1));
+      float newN = oldN + 1;
+      vec3 newAve += ((C - Ave) / (num + 1));
 
       imageStore(colCurr, ivec2(gl_LaunchIDEXT.xy), vec4(Ave, num + 1));
+      imageStore(kdCurr, ivec2(gl_LaunchIDEXT.xy), vec4(firstKd,0));
+      imageStore(ndCurr, ivec2(gl_LaunchIDEXT.xy), vec4(firstNrm,firstDepth));
     }
 
     // @@ History: Accumulate C with <whatever> and write to the output pixel
 
+    // STEP 1: Back-project the current frame's world position into the previous frame
+    vec4 screenH = (mats.priorViewProj * vec4(firstPos, 1.0)); // Project to prev buffers
+    vec2 screen = ((screenH.xy / screenH.w) + vec2(1.0)) / 2.0; // H-division and map to [0,1]
+
+    // FAILURE CASE 1/2
+    if (!firstHit)
+    {
+      invalidHistory = true;
+    }
+    if ((screen.x < 0.0f || screen.x > 1.0f) || (screen.y < 0.0f || screen.y > 1.0f)
+    {
+      invalidHistory = true;
+    }
+
+    // STEP 2: Calculate the previous frame's accumulation
+    vec4 P = vec4(1.0);
+
+    vec3 oldAve = P.xyz;
+    float oldN = P.w;
+
+    // FAILURE CASE 3
+    // if P finds no valid pixels to average
+    if (invalidHistory)
+    {
+      oldAve = vec3(0.5);
+      oldN = 1;
+    }
+    
+    float newN = oldN + 1;
+    vec3 newAve = oldAve +  (C - Ave) / newN;
+
+    imageStore(colCurr, ivec2(gl_LaunchIDEXT.xy), vec4(newAve, newN));
 }
 
 //  LocalWords:  Pathtracing Raycasting
