@@ -268,6 +268,8 @@ public:
     void updateCameraBuffer();
     void rasterize();
     void raytrace();
+
+    bool denoiser = false;
     void denoise();
     
     uint32_t m_swapchainIndex{0};

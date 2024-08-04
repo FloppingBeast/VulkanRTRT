@@ -37,11 +37,17 @@ void drawGUI(App* app, VkApp& VK)
     // An example check box:
     ImGui::Checkbox("Ray Trace", &VK.useRaytracer);
 
+    // Use of full BRDF
+    ImGui::Checkbox("Full BRDF", &VK.m_pcRay.BRDF);
+
     // Accumulate paths
     ImGui::Checkbox("Accumulate", &VK.m_pcRay.accumulate);
 
-    // Use of full BRDF
-    ImGui::Checkbox("Full BRDF", &VK.m_pcRay.BRDF);
+    // History Tracking
+    ImGui::Checkbox("History", &VK.m_pcRay.history);
+
+    // Denoising
+    ImGui::Checkbox("Denoise", &VK.denoiser);
 
     // Clear and repath
     ImGui::Checkbox("Clear", &(app->myCamera.modified));
@@ -49,6 +55,13 @@ void drawGUI(App* app, VkApp& VK)
     // An example slider:
     if (ImGui::SliderFloat("Exposure", &VK.m_pcRay.exposure, 0.5f, 8.0f, "%.5f"))
         VK.m_pcRay.clear = true;
+
+    if (ImGui::SliderFloat("Depth Threshold", &VK.m_pcRay.exposure, 0.0f, 1.0f, "%.2f"))
+      VK.m_pcRay.clear = true;
+
+    if (ImGui::SliderFloat("Normal Threshold", &VK.m_pcRay.exposure, 0.0f, 1.0f, "%.2f"))
+      VK.m_pcRay.clear = true;
+
 
     ImGui::Text("Frame Count: %i", VK.frameCount);
 }

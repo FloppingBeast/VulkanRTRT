@@ -41,6 +41,13 @@ void VkApp::destroyAllVulkanResources()
     // Destroy all vulkan objects.
     // ...  All objects created on m_device must be destroyed before m_device.
 
+    // Project 4 Destroy
+    vkDestroyPipelineLayout(m_device, m_denoiseCompPipelineLayout, nullptr);
+    vkDestroyPipeline(m_device, m_denoisePipeline, nullptr);
+
+    m_denoiseDesc.destroy(m_device);
+    m_denoiseBuffer.destroy(m_device);
+
     // Project 3 Destroy
     m_shaderBindingTableBW.destroy(m_device);
 

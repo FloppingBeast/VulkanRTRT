@@ -24,7 +24,11 @@ void VkApp::createDenoiseBuffer()
     transitionImageLayout(m_denoiseBuffer.image, VK_FORMAT_R32G32B32A32_SFLOAT,
                           VK_IMAGE_LAYOUT_UNDEFINED,
                           VK_IMAGE_LAYOUT_GENERAL, 1);
-    // @@ destroy m_denoiseBuffer
+    // @@ destroy m_denoiseBuffer (DONE)
+
+    // Went ahead and initialized the push constant ray values here as well
+    m_pcDenoise.normFactor = .003;
+    m_pcDenoise.depthFactor = .007;
 }
 
 void VkApp::createDenoiseDescriptorSet()
@@ -40,7 +44,8 @@ void VkApp::createDenoiseDescriptorSet()
     m_denoiseDesc.write(m_device, 1, m_denoiseBuffer.Descriptor());   // The output image
     m_denoiseDesc.write(m_device, 2, m_rtKdCurrBuffer.Descriptor());  // The color buffer
     m_denoiseDesc.write(m_device, 3, m_rtNdCurrBuffer.Descriptor());  // The normal:depth buffer
-    // @@ destroy m_denoiseDesc
+
+    // @@ destroy m_denoiseDesc (DONE)
 }
 
 void VkApp::createDenoiseCompPipeline()
@@ -62,8 +67,8 @@ void VkApp::createDenoiseCompPipeline()
     vkCreateComputePipelines(m_device, {}, 1, &cpCreateInfo, nullptr, &m_denoisePipeline);
     vkDestroyShaderModule(m_device, cpCreateInfo.stage.module, nullptr);
 
-    // @@ destroy m_denoiseCompPipelineLayout
-    // @@ destroy m_denoisePipeline
+    // @@ destroy m_denoiseCompPipelineLayout (DONE)
+    // @@ destroy m_denoisePipeline (DONE)
 }
 
 void VkApp::denoise()
@@ -84,7 +89,7 @@ void VkApp::denoise()
                          VK_DEPENDENCY_DEVICE_GROUP_BIT, 0, nullptr, 0, nullptr, 1, &imgMemBarrier);
 
     int stepwidth = 1;
-    for (int a=0; a<m_num_atrous_iterations; a++) {
+    for (int a=0; a < m_num_atrous_iterations; a++) {
 
         // Tell the A-Trous algorithm its "hole" size
         m_pcDenoise.stepwidth = stepwidth;
@@ -116,6 +121,7 @@ void VkApp::denoise()
         // @@ Copy the denoised results (in m_denoiseBuffer) back to
         // the input buffer (m_scImageBuffer) for the next denoising
         // loop pass.  See VkApp::raytrace for 4 examples of using
-        // VkApp::CmdCopyImage to copy an image.
+        // VkApp::CmdCopyImage to copy an image. (DONE)
+        CmdCopyImage(m_denoiseBuffer, m_scImageBuffer);
     }
 }

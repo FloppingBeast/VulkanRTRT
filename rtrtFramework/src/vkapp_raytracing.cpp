@@ -75,6 +75,11 @@ void VkApp::initRayTracing()
     m_pcRay.exposure = 2.0;
     m_pcRay.accumulate = true;
     m_pcRay.BRDF = false;
+    m_pcRay.history = false;
+
+    // depth and normal thresholds for calculating selective weights (HERE FOR IMGUI USE)
+    m_pcRay.dThresh = 0.15f;
+    m_pcRay.nThresh = 0.95f;
     
     // Requesting ray tracing properties
     VkPhysicalDeviceProperties2 prop2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2};
@@ -382,14 +387,6 @@ void VkApp::CmdCopyImage(ImageWrap& src, ImageWrap& dst)
 
 void VkApp::raytrace()
 {
-    // Fill the push constant structure for the ray tracing pipeline.
-    // @@ Raycasting: Define and fill 3 temporary light values. (DONE)
-    // @@ Pathtracing: Remove these because path tracing finds emitters defined in the model. (DONE)
-    // These values define a light near the ceiling of the living room model.
-    /*m_pcRay.tempLightPos = vec4(nonrtLightPosition, 0.0);
-    m_pcRay.tempLightInt = vec4(nonrtLightIntensity);
-    m_pcRay.tempAmbient = vec4(nonrtLightAmbient);*/
-    
     // Determine frame specific random number
     m_pcRay.frameSeed = rand() % 32768;
 
@@ -407,8 +404,6 @@ void VkApp::raytrace()
     app->myCamera.modified = false;
 
     if (m_pcRay.clear) frameCount = 1;
-
-    // m_pcRay.alignmentTest = 1234;
 
     // Bind the ray tracing pipeline
     vkCmdBindPipeline(m_commandBuffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR, m_rtPipeline);

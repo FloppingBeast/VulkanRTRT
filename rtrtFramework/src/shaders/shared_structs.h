@@ -121,6 +121,9 @@ struct PushConstantRay
   // ImGUI values
   ALIGNAS(4) bool accumulate;
   ALIGNAS(4) bool BRDF;
+  ALIGNAS(4) bool history;
+  ALIGNAS(4) float dThresh;
+  ALIGNAS(4) float nThresh;
 };
 
 struct Vertex  // Created by readModel; used in shaders
@@ -143,7 +146,9 @@ struct Material  // Created by readModel; used in shaders
 // Push constant structure for the ray tracer
 struct PushConstantDenoise
 {
-    int  stepwidth;  
+    int  stepwidth;
+    float normFactor;
+    float depthFactor;
 };
 
 struct RayPayload

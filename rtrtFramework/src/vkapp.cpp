@@ -78,9 +78,9 @@ VkApp::VkApp(App* _app) : app(_app)
     createRtShaderBindingTable();
 
     // @@ Denoising: Initialize denoising capabilities
-    // createDenoiseBuffer();
-    // createDenoiseDescriptorSet();
-    // createDenoiseCompPipeline();
+    createDenoiseBuffer();
+    createDenoiseDescriptorSet();
+    createDenoiseCompPipeline();
 
 }
 
@@ -98,7 +98,7 @@ void VkApp::drawFrame()
     if (useRaytracer)
     {
       raytrace();
-      //     denoise(); }
+      if (denoiser) denoise();
     }
     else
     {
